@@ -193,117 +193,50 @@ nav a .ico{font-size:1.15rem;width:22px;text-align:center;}
   .g3{grid-template-columns:1fr 1fr;}
 }
 @media(max-width:768px){
-  /* Layout base */
   #shell{flex-direction:column;}
   #sidebar{
-    width:100%;
-    min-width:100%;
-    height:auto;
-    position:fixed;
-    bottom:0;
-    top:auto;
-    left:0;
-    right:0;
-    flex-direction:row;
-    padding:8px 12px;
-    border-right:none;
-    border-top:1px solid var(--border);
-    z-index:300;
-    gap:0;
-    justify-content:space-around;
-    align-items:center;
-    background:#0a180d;
+    width:100vw;min-width:100vw;height:60px;
+    position:fixed;bottom:0;top:auto;left:0;right:0;
+    flex-direction:row;padding:0 8px;
+    border-right:none;border-top:1px solid var(--border);
+    z-index:999;gap:0;justify-content:space-around;
+    align-items:center;background:#080f0a;
   }
-  /* Esconder logo e score na sidebar mobile */
   .logo,.score-box,.sb-foot{display:none!important;}
-  /* Nav horizontal */
-  nav{
-    flex-direction:row;
-    gap:0;
-    width:100%;
-    justify-content:space-around;
-  }
+  nav{flex-direction:row;width:100%;justify-content:space-around;gap:0;}
   nav a{
-    flex-direction:column;
-    gap:3px;
-    padding:8px 6px;
-    border-radius:10px;
-    font-size:.62rem;
-    min-width:52px;
-    text-align:center;
-    border:none;
-    background:none;
+    flex-direction:column;gap:2px;padding:6px 4px;
+    border-radius:8px;font-size:.58rem;
+    text-align:center;border:none;background:none;
+    min-width:48px;align-items:center;
   }
-  nav a.act{background:var(--green-soft);}
-  nav a .ico{font-size:1.3rem;width:auto;}
-  /* Mostrar label curta no mobile */
-  nav a::after{
-    content:attr(data-label);
-    font-size:.62rem;
-    color:var(--muted);
-  }
-  nav a.act::after{color:var(--green);}
-
-  /* Main */
+  nav a .ico{font-size:1.2rem;width:auto;line-height:1;}
+  nav a.act{background:rgba(34,197,94,.15);}
   #main{
-    margin-left:0;
-    width:100%;
-    padding:16px 14px 80px;
+    margin-left:0!important;width:100vw!important;
+    padding:14px 12px 72px!important;
     min-height:100vh;
   }
-
-  /* Grids */
-  .g3{grid-template-columns:1fr!important;}
-  .g2{grid-template-columns:1fr!important;}
+  .g3,.g2{grid-template-columns:1fr!important;}
   .exec{grid-template-columns:1fr!important;}
   .frow{flex-direction:column!important;}
-
-  /* Header */
-  .hdr{flex-direction:column;align-items:flex-start;gap:10px;}
-  .hdr div:last-child{width:100%;}
-  .hdr button{width:100%;}
-
-  /* Cards */
-  .card{padding:16px;}
-
-  /* Treinos — botões do card */
-  .card [style*="display:flex;gap:6px"]{flex-wrap:wrap;}
-  .card .btn-g[style*="flex:1"]{width:100%;}
-
-  /* Timer */
-  .timer{width:120px;height:120px;}
-  .timer svg{width:120px;height:120px;}
-  .ttxt{font-size:1.5rem!important;}
-
-  /* Exec layout */
-  .exec-img-wrap{height:200px!important;}
-
-  /* Modal */
+  .hdr{flex-direction:column;align-items:flex-start;gap:8px;}
+  .hdr>div:last-child{width:100%;}
+  .hdr button{width:100%!important;}
+  .card{padding:14px!important;}
   .modal{
-    width:96%!important;
-    max-width:96%!important;
-    padding:20px 16px!important;
-    max-height:88vh!important;
+    width:95vw!important;max-width:95vw!important;
+    padding:18px 14px!important;max-height:85vh!important;
   }
-
-  /* Diet */
-  .meal-hd{padding:11px 12px;flex-wrap:wrap;gap:8px;}
-  .food-row{flex-wrap:wrap;gap:6px;}
-
-  /* Progress charts */
-  canvas{max-width:100%!important;}
-
-  /* Scores dashboard */
-  .ccir{width:140px!important;height:140px!important;}
-
-  /* Buttons full width em telas pequenas */
-  .fact{flex-direction:column;}
-  .fact button{width:100%;}
-}
-
-@media(max-width:380px){
-  nav a{min-width:44px;padding:6px 4px;}
-  #main{padding:12px 10px 76px;}
+  .timer{width:110px!important;height:110px!important;}
+  .timer svg{width:110px!important;height:110px!important;}
+  .ttxt{font-size:1.4rem!important;}
+  .exec-img-wrap{height:180px!important;}
+  canvas{max-width:100%!important;height:auto!important;}
+  .fact{flex-direction:column!important;}
+  .fact button{width:100%!important;}
+  .meal-hd{flex-wrap:wrap;gap:6px;}
+  .calgrid .cd{font-size:.65rem!important;}
 }
 </style>
 </head>

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command ':*)",
+      "Bash(powershell -Command 'Get-ChildItem '\\\\''D:\\\\Plataforma de treino\\\\img\\\\exercises'\\\\'' | ForEach-Object { Write-Host $_.Name, $_.Length }')",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"D:/Plataforma de treino/download_imgs.ps1\")",
+      "Bash(python download_imgs.py)",
+      "Bash(python -c ':*)",
+      "Bash(pip install:*)"
+    ]
+  }
+}
