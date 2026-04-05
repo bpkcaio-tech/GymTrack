@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="GymTrack"/>
+<meta name="theme-color" content="#22C55E"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="img/icon-192.png"/>
+<title>GymTrack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+/* ══════════════════ RESET & VARS ══════════════════ */
+:root{
+  color-scheme:dark;
+  --bg:#070E0A;
+  --card:rgba(255,255,255,0.04);
+  --border:rgba(255,255,255,0.08);
+  --text:#E9F7EF;
+  --muted:#9CC7A4;
+  --green:#22C55E;
+  --green-d:#16A34A;
+  --green-soft:rgba(34,197,94,0.15);
+  --yellow:#FACC15;
+  --red:#EF4444;
+  --blue:#3B82F6;
+  --radius:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;}
+body{background:radial-gradient(ellipse at 20% -10%,rgba(34,197,94,.10),transparent 55%),var(--bg);}
+a{color:inherit;text-decoration:none;}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+input,select,textarea{font:inherit;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);outline:none;transition:border .2s;}
+input:focus,select:focus{border-color:var(--green);}
+select{-webkit-appearance:none;appearance:none;background:rgba(255,255,255,.06) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2322C55E' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 12px center;padding-right:32px;}
+select option{background:#0c1a10;color:#E9F7EF;padding:8px;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:9px;}
+
+/* ══════════════════ LAYOUT ══════════════════ */
+#shell{display:flex;min-height:100vh;}
+#sidebar{width:240px;min-width:240px;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;padding:24px 18px;background:rgba(255,255,255,.03);border-right:1px solid var(--border);z-index:200;overflow-y:auto;}
+#main{margin-left:240px;width:calc(100vw - 240px);padding:32px;min-height:100vh;}
+
+/* ══════════════════ SIDEBAR ══════════════════ */
+.logo{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.logo-box{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,var(--green),var(--green-d));display:grid;place-items:center;font-weight:800;color:#071;font-size:1rem;}
+.logo-txt h1{font-size:.95rem;font-weight:700;line-height:1.2;}
+.logo-txt span{font-size:.72rem;color:var(--muted);}
+.score-box{margin:18px 0 22px;padding:14px;border-radius:14px;background:var(--green-soft);text-align:center;}
+.score-val{font-size:1.7rem;font-weight:800;color:var(--green);}
+.score-lbl{font-size:.72rem;color:var(--muted);margin-top:2px;}
+nav{display:flex;flex-direction:column;gap:4px;}
+nav a{display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:12px;font-size:.88rem;font-weight:500;color:var(--muted);transition:all .15s;}
+nav a:hover{background:rgba(255,255,255,.05);color:var(--text);}
+nav a.act{background:var(--green-soft);color:var(--text);font-weight:600;}
+nav a .ico{font-size:1.15rem;width:22px;text-align:center;}
+.sb-foot{margin-top:auto;font-size:.72rem;color:var(--muted);line-height:1.55;padding-top:20px;}
+
+/* ══════════════════ COMMON ══════════════════ */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;backdrop-filter:blur(16px);}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.g1{display:grid;gap:16px;}
+.hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;}
+.hdr h2{font-size:1.55rem;font-weight:800;}
+.hdr p{color:var(--muted);font-size:.88rem;margin-top:2px;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;font-weight:600;font-size:.86rem;transition:all .15s;}
+.btn-g{background:linear-gradient(135deg,var(--green),var(--green-d));color:#071;box-shadow:0 8px 24px rgba(34,197,94,.2);}
+.btn-g:hover{transform:translateY(-1px);box-shadow:0 12px 32px rgba(34,197,94,.28);}
+.btn-s{background:rgba(255,255,255,.06);border:1px solid var(--border);}
+.btn-s:hover{background:rgba(255,255,255,.1);}
+.btn-r{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.18);}
+.btn-sm{padding:7px 14px;font-size:.8rem;border-radius:10px;}
+.btn-xs{padding:5px 10px;font-size:.75rem;border-radius:8px;}
+.badge{display:inline-block;padding:4px 11px;border-radius:99px;font-size:.73rem;font-weight:600;}
+.bg-g{background:var(--green-soft);color:var(--green);}
+.bg-y{background:rgba(250,204,21,.12);color:var(--yellow);}
+.bg-r{background:rgba(239,68,68,.12);color:var(--red);}
+.bg-b{background:rgba(59,130,246,.12);color:var(--blue);}
+.pbar{height:8px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;}
+.pbar .f{height:100%;border-radius:99px;transition:width .4s;}
+.pbar .f.gr{background:linear-gradient(90deg,var(--green),var(--green-d));}
+.pbar .f.bl{background:linear-gradient(90deg,#3B82F6,#2563EB);}
+.pbar .f.yl{background:linear-gradient(90deg,#FACC15,#EAB308);}
+.pbar .f.rd{background:linear-gradient(90deg,#EF4444,#DC2626);}
+.stat{padding:18px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--border);}
+.stat .lbl{color:var(--muted);font-size:.82rem;margin-bottom:6px;}
+.stat .val{font-size:1.45rem;font-weight:800;}
+
+/* ══════════════════ MODAL ══════════════════ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;animation:fadeIn .18s;}
+.modal{background:#0c1a10;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px;width:92%;max-width:620px;max-height:86vh;overflow-y:auto;animation:slideU .22s;}
+.modal-lg{max-width:920px;}
+.modal h3{font-size:1.2rem;margin-bottom:18px;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideU{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.frm{margin-bottom:14px;}
+.frm label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:5px;font-weight:500;}
+.frm input,.frm select{width:100%;}
+.frow{display:flex;gap:12px;}
+.frow>*{flex:1;}
+.fact{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;}
+
+/* ══════════════════ EXEC LAYOUT ══════════════════ */
+.exec{display:grid;grid-template-columns:1fr 380px;gap:24px;}
+.exec-img{width:100%;height:220px;object-fit:cover;border-radius:12px;background:#0D1F14;margin-bottom:12px;}
+.exec-img-wrap{width:100%;height:280px;border-radius:12px;background:#0D1F14;margin-bottom:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.exec-img-wrap img{max-width:100%;max-height:280px;width:auto;height:auto;object-fit:contain;display:block!important;position:relative!important;inset:auto!important;}
+.exec-img-wrap .fallback-txt{display:none!important;}
+.chips .ch{display:inline-block;padding:4px 12px;border-radius:99px;font-size:.75rem;background:var(--green-soft);color:var(--green);margin:3px 3px 3px 0;}
+.steps{list-style:none;counter-reset:s;}
+.steps li{counter-increment:s;padding:7px 0;color:var(--muted);font-size:.88rem;display:flex;gap:10px;}
+.steps li::before{content:counter(s);width:22px;height:22px;border-radius:50%;background:var(--green-soft);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;}
+.vid-ph{width:100%;height:240px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(255,255,255,.04);cursor:pointer;transition:background .15s;font-size:1rem;color:var(--muted);}
+.vid-ph:hover{background:rgba(255,255,255,.07);}
+.vid-if{width:100%;height:240px;border:none;border-radius:12px;}
+.srow{display:flex;justify-content:space-between;padding:7px 12px;border-radius:8px;background:rgba(255,255,255,.04);margin-top:5px;font-size:.85rem;}
+
+/* ══════════════════ TIMER ══════════════════ */
+.timer{position:relative;width:150px;height:150px;margin:0 auto 12px;}
+.timer svg{transform:rotate(-90deg);}
+.timer .tbg{fill:none;stroke:rgba(255,255,255,.07);stroke-width:8;}
+.timer .tfg{fill:none;stroke:var(--green);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .25s;}
+.timer .ttxt{position:absolute;inset:0;display:grid;place-items:center;font-size:1.9rem;font-weight:800;}
+
+/* ══════════════════ DIET ══════════════════ */
+.meal-sec{margin-bottom:14px;}
+.meal-hd{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--border);cursor:pointer;transition:background .15s;}
+.meal-hd:hover{background:rgba(255,255,255,.06);}
+.meal-bd{padding:8px 16px;display:none;}
+.meal-bd.open{display:block;}
+.food-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.food-row:last-child{border:none;}
+
+/* ══════════════════ CAL CIRCLE ══════════════════ */
+.ccir{position:relative;width:170px;height:170px;margin:0 auto 14px;}
+.ccir svg{transform:rotate(-90deg);}
+.ccir .cbg{fill:none;stroke:rgba(255,255,255,.07);stroke-width:11;}
+.ccir .cfg{fill:none;stroke:var(--green);stroke-width:11;stroke-linecap:round;transition:stroke-dashoffset .4s;}
+.ccir .ctx{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ccir .cn{font-size:1.7rem;font-weight:800;}
+.ccir .cl{font-size:.75rem;color:var(--muted);}
+
+/* ══════════════════ CALENDAR ══════════════════ */
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;}
+.calgrid .ch{font-size:.68rem;color:var(--muted);padding:4px 0;}
+.calgrid .cd{aspect-ratio:1;border-radius:8px;display:grid;place-items:center;font-size:.73rem;background:rgba(255,255,255,.03);color:var(--muted);}
+.calgrid .cd.tr{background:var(--green-soft);color:var(--green);font-weight:600;}
+.calgrid .cd.tod{box-shadow:inset 0 0 0 1.5px var(--green);}
+.calgrid .cd.empty{background:transparent;}
+.calgrid .cd.clk{cursor:pointer;transition:all .15s;}
+.calgrid .cd.clk:hover{background:rgba(255,255,255,.08);}
+.calgrid .cd.fut{opacity:.4;cursor:not-allowed;}
+.drag-over{border:2px dashed var(--green) !important;background:rgba(34,197,94,.06) !important;}
+.dragging{opacity:.4 !important;}
+.drag-handle{cursor:grab;color:var(--muted);user-select:none;font-size:1.1rem;padding:0 4px;}
+.drag-handle:active{cursor:grabbing;}
+/* ── Custom Dropdown ── */
+.cdrop{position:relative;display:inline-block;}
+.cdrop-btn{background:rgba(255,255,255,.06);border:1px solid rgba(34,197,94,.2);color:var(--green);font-size:.82rem;padding:5px 10px;min-width:72px;text-align:center;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:4px;justify-content:center;transition:border .15s;}
+.cdrop-btn:hover,.cdrop-btn.open{border-color:var(--green);background:rgba(255,255,255,.08);}
+.cdrop-list{display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:4px;background:#0c1a10;border:1px solid rgba(34,197,94,.25);border-radius:10px;max-height:200px;overflow-y:auto;z-index:300;min-width:90px;box-shadow:0 12px 32px rgba(0,0,0,.5);padding:4px;}
+.cdrop-list.show{display:block;animation:fadeIn .12s;}
+.cdrop-list .opt{padding:6px 12px;border-radius:6px;font-size:.82rem;color:var(--muted);cursor:pointer;text-align:center;transition:all .1s;}
+.cdrop-list .opt:hover{background:rgba(34,197,94,.12);color:var(--text);}
+.cdrop-list .opt.sel{background:rgba(34,197,94,.2);color:var(--green);font-weight:600;}
+.ico svg{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none;vertical-align:middle;}
+
+/* ══════════════════ HIST ══════════════════ */
+.hi{padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:background .15s;}
+.hi:hover{background:rgba(255,255,255,.06);}
+.hdet{display:none;padding:10px 16px;font-size:.85rem;color:var(--muted);margin-bottom:8px;}
+.hdet.open{display:block;}
+
+/* ══════════════════ SEARCH ══════════════════ */
+.sinp{width:100%;padding:11px 16px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);font-size:.88rem;}
+.sinp:focus{border-color:var(--green);}
+.sres{max-height:260px;overflow-y:auto;margin-top:8px;}
+.si{padding:11px 14px;border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .12s;}
+.si:hover{background:rgba(255,255,255,.06);}
+
+/* ══════════════════ RESPONSIVE ══════════════════ */
+@media(max-width:1100px){
+  #sidebar{display:none;}
+  #main{margin-left:0;width:100%;}
+  .exec{grid-template-columns:1fr;}
+  .g3{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:768px){
+  /* Layout base */
+  #shell{flex-direction:column;}
+  #sidebar{
+    width:100%;
+    min-width:100%;
+    height:auto;
+    position:fixed;
+    bottom:0;
+    top:auto;
+    left:0;
+    right:0;
+    flex-direction:row;
+    padding:8px 12px;
+    border-right:none;
+    border-top:1px solid var(--border);
+    z-index:300;
+    gap:0;
+    justify-content:space-around;
+    align-items:center;
+    background:#0a180d;
+  }
+  /* Esconder logo e score na sidebar mobile */
+  .logo,.score-box,.sb-foot{display:none!important;}
+  /* Nav horizontal */
+  nav{
+    flex-direction:row;
+    gap:0;
+    width:100%;
+    justify-content:space-around;
+  }
+  nav a{
+    flex-direction:column;
+    gap:3px;
+    padding:8px 6px;
+    border-radius:10px;
+    font-size:.62rem;
+    min-width:52px;
+    text-align:center;
+    border:none;
+    background:none;
+  }
+  nav a.act{background:var(--green-soft);}
+  nav a .ico{font-size:1.3rem;width:auto;}
+  /* Mostrar label curta no mobile */
+  nav a::after{
+    content:attr(data-label);
+    font-size:.62rem;
+    color:var(--muted);
+  }
+  nav a.act::after{color:var(--green);}
+
+  /* Main */
+  #main{
+    margin-left:0;
+    width:100%;
+    padding:16px 14px 80px;
+    min-height:100vh;
+  }
+
+  /* Grids */
+  .g3{grid-template-columns:1fr!important;}
+  .g2{grid-template-columns:1fr!important;}
+  .exec{grid-template-columns:1fr!important;}
+  .frow{flex-direction:column!important;}
+
+  /* Header */
+  .hdr{flex-direction:column;align-items:flex-start;gap:10px;}
+  .hdr div:last-child{width:100%;}
+  .hdr button{width:100%;}
+
+  /* Cards */
+  .card{padding:16px;}
+
+  /* Treinos — botões do card */
+  .card [style*="display:flex;gap:6px"]{flex-wrap:wrap;}
+  .card .btn-g[style*="flex:1"]{width:100%;}
+
+  /* Timer */
+  .timer{width:120px;height:120px;}
+  .timer svg{width:120px;height:120px;}
+  .ttxt{font-size:1.5rem!important;}
+
+  /* Exec layout */
+  .exec-img-wrap{height:200px!important;}
+
+  /* Modal */
+  .modal{
+    width:96%!important;
+    max-width:96%!important;
+    padding:20px 16px!important;
+    max-height:88vh!important;
+  }
+
+  /* Diet */
+  .meal-hd{padding:11px 12px;flex-wrap:wrap;gap:8px;}
+  .food-row{flex-wrap:wrap;gap:6px;}
+
+  /* Progress charts */
+  canvas{max-width:100%!important;}
+
+  /* Scores dashboard */
+  .ccir{width:140px!important;height:140px!important;}
+
+  /* Buttons full width em telas pequenas */
+  .fact{flex-direction:column;}
+  .fact button{width:100%;}
+}
+
+@media(max-width:380px){
+  nav a{min-width:44px;padding:6px 4px;}
+  #main{padding:12px 10px 76px;}
+}
+</style>
+</head>
+<body>
+<div id="shell">
+  <aside id="sidebar">
+    <div class="logo"><div class="logo-box">GT</div><div class="logo-txt"><h1>GymTrack</h1><span>Training Intelligence</span></div></div>
+    <div class="score-box"><div class="score-val" id="sbScore">0</div><div class="score-lbl">Pontos totais</div></div>
+    <nav id="navLinks">
+      <a href="#dashboard" data-p="dashboard" data-label="Início" class="act"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>Dashboard</a>
+      <a href="#workouts" data-p="workouts" data-label="Treinos"><span class="ico"><svg viewBox="0 0 24 24"><path d="M6.5 6.5h-3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h3"/><path d="M17.5 6.5h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-3"/><rect x="6.5" y="4" width="11" height="16" rx="1"/><line x1="12" y1="8" x2="12" y2="16"/></svg></span>Treinos</a>
+      <a href="#diet" data-p="diet" data-label="Dieta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 2l1 16a5 5 0 0 0 5 5h0a5 5 0 0 0 5-5L15 2"/><line x1="9" y1="2" x2="9" y2="8"/><path d="M18 2v4a4 4 0 0 1-4 4"/><line x1="18" y1="8" x2="18" y2="22"/></svg></span>Dieta</a>
+      <a href="#progress" data-p="progress" data-label="Progresso"><span class="ico"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>Progresso</a>
+      <a href="#settings" data-p="settings" data-label="Config"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Configurações</a>
+    </nav>
+    <div class="sb-foot">Acompanhe treinos, macros e evolução em um único painel.</div>
+  </aside>
+  <main id="main"></main>
+</div>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DATA: EXERCISES
+   ═══════════════════════════════════════════════════════════════ */
+var EX_DB=[
+/* ── PEITO ── */
+{id:1,nome:"Supino Reto Barra",grupo:"Peito",equip:"Supino reto",instrucoes:["Deite no banco, pés firmes no chão","Desça a barra até o peito","Empurre para cima"],videoUrl:"https://www.youtube.com/embed/rT7DgCr-3pg",imagemUrl:"img/exercises/supino_reto.jpg"},
+{id:2,nome:"Supino Inclinado Barra",grupo:"Peito",equip:"Supino inclinado",instrucoes:["Banco a 30-45 graus","Desça a barra ao peito alto","Empurre para cima"],videoUrl:"https://www.youtube.com/embed/DbFgADa2PL8",imagemUrl:"img/exercises/supino_inclinado.jpg"},
+{id:3,nome:"Supino Reto Halteres",grupo:"Peito",equip:"Halteres + Banco",instrucoes:["Halteres na altura do peito","Empurre para cima convergindo","Desça controlado"],videoUrl:"https://www.youtube.com/embed/dX_nSOOJIsE",imagemUrl:"img/exercises/supino_reto_halteres.jpg"},
+{id:4,nome:"Supino Inclinado Halteres",grupo:"Peito",equip:"Halteres + Banco inclinado",instrucoes:["Banco 30-45 graus com halteres","Empurre acima do peito","Desça controlado"],videoUrl:"https://www.youtube.com/embed/DbFgADa2PL8",imagemUrl:"img/exercises/supino_inclinado.jpg"},
+{id:5,nome:"Crucifixo Halteres",grupo:"Peito",equip:"Halteres + Banco",instrucoes:["Halteres acima do peito","Abra em arco com cotovelos semiflexionados","Retorne contraindo"],videoUrl:"https://www.youtube.com/embed/eozdVDA78K0",imagemUrl:"img/exercises/crucifixo.jpg"},
+{id:6,nome:"Crucifixo Cabo Alto",grupo:"Peito",equip:"Crossover",instrucoes:["Pegue os cabos altos","Traga as mãos à frente do peito","Controle a volta"],videoUrl:"https://www.youtube.com/embed/taI4XduLpTk",imagemUrl:"img/exercises/crucifixo_cabo.jpg"},
+{id:7,nome:"Crucifixo Cabo Baixo",grupo:"Peito",equip:"Crossover",instrucoes:["Pegue os cabos baixos","Eleve cruzando na frente do peito","Desça controlado"],videoUrl:"https://www.youtube.com/embed/WEM9FCIPlxQ",imagemUrl:"img/exercises/crucifixo_cabo.jpg"},
+{id:8,nome:"Pec Deck (Borboleta)",grupo:"Peito",equip:"Pec Deck",instrucoes:["Sente-se com braços abertos","Traga os braços à frente","Volte controlado"],videoUrl:"https://www.youtube.com/embed/Z57CtFmRMxA",imagemUrl:"img/exercises/crucifixo.jpg"},
+{id:9,nome:"Chest Press Máquina",grupo:"Peito",equip:"Chest Press",instrucoes:["Sente-se e segure as barras","Empurre para frente","Retorne controlado"],videoUrl:"https://www.youtube.com/embed/xUm0BiZCWlQ",imagemUrl:"img/exercises/supino_reto.jpg"},
+{id:10,nome:"Mergulho Paralelas",grupo:"Peito",equip:"Paralelas",instrucoes:["Apoie nas paralelas inclinando o tronco","Desça flexionando cotovelos","Suba estendendo"],videoUrl:"https://www.youtube.com/embed/2z8JmcrW-As",imagemUrl:"img/exercises/mergulho.jpg"},
+{id:11,nome:"Supino Declinado",grupo:"Peito",equip:"Supino declinado",instrucoes:["Banco declinado, pés presos","Desça a barra ao peito baixo","Empurre para cima"],videoUrl:"https://www.youtube.com/embed/LfyQBUKR8SE",imagemUrl:"img/exercises/supino_declinado.jpg"},
+/* ── COSTAS ── */
+{id:12,nome:"Puxada Frontal",grupo:"Costas",equip:"Puxador alto",instrucoes:["Sente-se e segure a barra larga","Puxe até o peito","Retorne controlado"],videoUrl:"https://www.youtube.com/embed/CAwf7n6Luuc",imagemUrl:"img/exercises/puxada.jpg"},
+{id:13,nome:"Puxada Triângulo",grupo:"Costas",equip:"Puxador alto",instrucoes:["Use o puxador triângulo","Puxe até o peito com pegada neutra","Retorne controlado"],videoUrl:"https://www.youtube.com/embed/lueEJGjTuPQ",imagemUrl:"img/exercises/puxada.jpg"},
+{id:14,nome:"Puxada Supinada",grupo:"Costas",equip:"Puxador alto",instrucoes:["Pegada supinada na barra","Puxe até o peito","Enfatiza bíceps e dorsal inferior"],videoUrl:"https://www.youtube.com/embed/trKDfHL1TLs",imagemUrl:"img/exercises/puxada.jpg"},
+{id:15,nome:"Remada Baixa Triângulo",grupo:"Costas",equip:"Remada baixa cabo",instrucoes:["Sente-se e pegue o triângulo","Puxe até o abdômen","Retorne estendendo"],videoUrl:"https://www.youtube.com/embed/GZbfZ033f74",imagemUrl:"img/exercises/remada_curvada.jpg"},
+{id:16,nome:"Remada Curvada Barra",grupo:"Costas",equip:"Barra olímpica",instrucoes:["Incline a 45 graus","Puxe a barra ao abdômen","Desça controlado"],videoUrl:"https://www.youtube.com/embed/kBWAon7ItDw",imagemUrl:"img/exercises/remada_curvada.jpg"},
+{id:17,nome:"Remada Unilateral Haltere",grupo:"Costas",equip:"Haltere + Banco",instrucoes:["Apoie joelho e mão no banco","Puxe o halter à cintura","Desça controlado"],videoUrl:"https://www.youtube.com/embed/pYcpY20QaE8",imagemUrl:"img/exercises/remada_unilateral.jpg"},
+{id:18,nome:"Barra Fixa Pronada",grupo:"Costas",equip:"Barra fixa",instrucoes:["Pegada pronada acima dos ombros","Puxe o queixo acima da barra","Desça controlado"],videoUrl:"https://www.youtube.com/embed/eGo4IYlbE5g",imagemUrl:"img/exercises/barra_fixa.jpg"},
+{id:19,nome:"Pullover Haltere",grupo:"Costas",equip:"Haltere + Banco",instrucoes:["Deite no banco segurando haltere","Leve atrás da cabeça","Retorne acima do peito"],videoUrl:"https://www.youtube.com/embed/FK4rHfWKEac",imagemUrl:"img/exercises/puxada.jpg"},
+{id:20,nome:"Terra Convencional",grupo:"Costas",equip:"Barra olímpica",instrucoes:["Barra no chão, pegada na largura dos ombros","Levante estendendo quadris e joelhos","Desça controlado"],videoUrl:"https://www.youtube.com/embed/op9kVnSso6Q",imagemUrl:"img/exercises/terra.jpg"},
+{id:21,nome:"Remada Máquina",grupo:"Costas",equip:"Remada máquina",instrucoes:["Sente-se apoiando o peito","Puxe as barras ao corpo","Retorne controlado"],videoUrl:"https://www.youtube.com/embed/roCP6wCXPqo",imagemUrl:"img/exercises/remada_curvada.jpg"},
+{id:22,nome:"Hiperextensão Lombar",grupo:"Costas",equip:"Hiperextensão",instrucoes:["Posicione-se na máquina","Desça o tronco","Suba até alinhar com as pernas"],videoUrl:"https://www.youtube.com/embed/ph3pddpKzzw",imagemUrl:"img/exercises/terra.jpg"},
+/* ── PERNAS ── */
+{id:23,nome:"Agachamento Livre",grupo:"Pernas",equip:"Rack + Barra",instrucoes:["Barra nas costas, pés afastados","Desça até 90 graus","Suba empurrando com calcanhares"],videoUrl:"https://www.youtube.com/embed/aclHkVaku9U",imagemUrl:"img/exercises/agachamento.jpg"},
+{id:24,nome:"Agachamento Sumô",grupo:"Pernas",equip:"Barra ou Haltere",instrucoes:["Pés bem afastados, pontas para fora","Desça mantendo joelhos alinhados","Suba contraindo glúteos"],videoUrl:"https://www.youtube.com/embed/8v2AvnMXFhM",imagemUrl:"img/exercises/agachamento_sumo.jpg"},
+{id:25,nome:"Agachamento Frontal",grupo:"Pernas",equip:"Rack + Barra",instrucoes:["Barra na frente dos ombros","Desça mantendo tronco ereto","Suba controlado"],videoUrl:"https://www.youtube.com/embed/m4ytaCJZpl0",imagemUrl:"img/exercises/agachamento.jpg"},
+{id:26,nome:"Agachamento Búlgaro",grupo:"Pernas",equip:"Halteres + Banco",instrucoes:["Um pé no banco atrás","Desça flexionando a perna da frente","Suba controlado"],videoUrl:"https://www.youtube.com/embed/2C-uNgKwPLE",imagemUrl:"img/exercises/passada.jpg"},
+{id:27,nome:"Leg Press 45°",grupo:"Pernas",equip:"Leg Press",instrucoes:["Pés na plataforma largura dos ombros","Desça flexionando joelhos","Empurre sem travar"],videoUrl:"https://www.youtube.com/embed/IZxyjW7MPJQ",imagemUrl:"img/exercises/leg_press.jpg"},
+{id:28,nome:"Cadeira Extensora",grupo:"Pernas",equip:"Cadeira extensora",instrucoes:["Sente-se e ajuste o apoio","Estenda as pernas","Retorne controlado"],videoUrl:"https://www.youtube.com/embed/YyvSfVjQeL0",imagemUrl:"img/exercises/extensora.jpg"},
+{id:29,nome:"Mesa Flexora",grupo:"Pernas",equip:"Mesa flexora",instrucoes:["Deite de bruços","Flexione os joelhos","Retorne controlado"],videoUrl:"https://www.youtube.com/embed/1Tq3QdYUuHs",imagemUrl:"img/exercises/flexora.jpg"},
+{id:30,nome:"Flexora Sentada",grupo:"Pernas",equip:"Cadeira flexora",instrucoes:["Sente-se e ajuste o apoio","Flexione puxando para baixo","Retorne controlado"],videoUrl:"https://www.youtube.com/embed/Orxowest56U",imagemUrl:"img/exercises/flexora_sentada.jpg"},
+{id:31,nome:"Stiff",grupo:"Pernas",equip:"Barra olímpica",instrucoes:["Barra pegada pronada","Desça o tronco, pernas semiflex","Suba contraindo posteriores"],videoUrl:"https://www.youtube.com/embed/1uDiW5--rAE",imagemUrl:"img/exercises/stiff.jpg"},
+{id:32,nome:"Adutora Máquina",grupo:"Pernas",equip:"Adutora",instrucoes:["Sente-se com pernas abertas","Feche as pernas contraindo","Abra controlado"],videoUrl:"https://www.youtube.com/embed/pYcpY20QaE8",imagemUrl:"img/exercises/leg_press.jpg"},
+{id:33,nome:"Abdutora Máquina",grupo:"Pernas",equip:"Abdutora",instrucoes:["Sente-se com pernas juntas","Abra empurrando para fora","Feche controlado"],videoUrl:"https://www.youtube.com/embed/pYcpY20QaE8",imagemUrl:"img/exercises/leg_press.jpg"},
+{id:34,nome:"Panturrilha em Pé",grupo:"Pernas",equip:"Máquina panturrilha",instrucoes:["Apoie os ombros na máquina","Eleve na ponta dos pés","Desça alongando"],videoUrl:"https://www.youtube.com/embed/gwLzBJYoWlI",imagemUrl:"img/exercises/panturrilha.jpg"},
+{id:35,nome:"Panturrilha Sentado",grupo:"Pernas",equip:"Máquina panturrilha sentado",instrucoes:["Sente-se com joelhos sob o apoio","Eleve os calcanhares","Desça alongando"],videoUrl:"https://www.youtube.com/embed/JbyjNymZOt0",imagemUrl:"img/exercises/panturrilha_sentado.jpg"},
+{id:36,nome:"Hack Squat",grupo:"Pernas",equip:"Hack Squat",instrucoes:["Apoie costas na máquina","Desça flexionando joelhos","Suba empurrando a plataforma"],videoUrl:"https://www.youtube.com/embed/EdtPTSdgGAo",imagemUrl:"img/exercises/hack_squat.jpg"},
+{id:37,nome:"Avanço com Halteres",grupo:"Pernas",equip:"Halteres",instrucoes:["Segure halteres ao lado","Dê um passo à frente flexionando","Retorne e alterne"],videoUrl:"https://www.youtube.com/embed/D7KaRcUTQeE",imagemUrl:"img/exercises/passada.jpg"},
+{id:38,nome:"Hip Thrust",grupo:"Pernas",equip:"Banco + Barra",instrucoes:["Costas no banco, barra no quadril","Eleve o quadril contraindo glúteos","Desça controlado"],videoUrl:"https://www.youtube.com/embed/SEdqd1n0cvg",imagemUrl:"img/exercises/hip_thrust.jpg"},
+{id:39,nome:"Agachamento no Smith",grupo:"Pernas",equip:"Smith Machine",instrucoes:["Barra no Smith nas costas","Pés ligeiramente à frente","Desça e suba controlado"],videoUrl:"https://www.youtube.com/embed/IGk2F-mcKTk",imagemUrl:"img/exercises/agachamento_smith.jpg"},
+/* ── OMBRO ── */
+{id:40,nome:"Desenvolvimento Halteres",grupo:"Ombro",equip:"Halteres + Banco",instrucoes:["Sente-se com halteres nos ombros","Empurre acima da cabeça","Desça controlado"],videoUrl:"https://www.youtube.com/embed/qEwKCR5JCog",imagemUrl:"img/exercises/desenvolvimento.jpg"},
+{id:41,nome:"Desenvolvimento Militar",grupo:"Ombro",equip:"Barra olímpica",instrucoes:["Em pé, barra na frente dos ombros","Empurre acima da cabeça","Desça controlado"],videoUrl:"https://www.youtube.com/embed/2yjwXTZQDDI",imagemUrl:"img/exercises/militar.jpg"},
+{id:42,nome:"Elevação Lateral",grupo:"Ombro",equip:"Halteres",instrucoes:["Halteres ao lado do corpo","Eleve lateralmente até os ombros","Desça controlado"],videoUrl:"https://www.youtube.com/embed/3VcKaXpzqRo",imagemUrl:"img/exercises/elevacao_lateral.jpg"},
+{id:43,nome:"Elevação Frontal",grupo:"Ombro",equip:"Halteres",instrucoes:["Halteres à frente das coxas","Eleve à frente até a linha dos ombros","Desça controlado"],videoUrl:"https://www.youtube.com/embed/-t7fuZ0KhDA",imagemUrl:"img/exercises/elevacao_frontal.jpg"},
+{id:44,nome:"Elevação Lateral Cabo",grupo:"Ombro",equip:"Cabo/Pulley",instrucoes:["Cabo baixo, puxe lateralmente","Eleve até a linha do ombro","Desça controlado"],videoUrl:"https://www.youtube.com/embed/PyiXb-HcWBE",imagemUrl:"img/exercises/elevacao_lateral.jpg"},
+{id:45,nome:"Face Pull",grupo:"Ombro",equip:"Cabo/Pulley",instrucoes:["Cabo alto com corda","Puxe em direção ao rosto","Abra os cotovelos e retorne"],videoUrl:"https://www.youtube.com/embed/rep-qVOkqgk",imagemUrl:"img/exercises/face_pull.jpg"},
+{id:46,nome:"Remada Alta Barra",grupo:"Ombro",equip:"Barra",instrucoes:["Barra pegada fechada","Puxe até o queixo","Desça controlado"],videoUrl:"https://www.youtube.com/embed/4o0cSgn82es",imagemUrl:"img/exercises/remada_alta.jpg"},
+{id:47,nome:"Press Ombro Máquina",grupo:"Ombro",equip:"Shoulder Press",instrucoes:["Sente-se e segure as barras","Empurre para cima","Desça controlado"],videoUrl:"https://www.youtube.com/embed/Wqq43dKW1TU",imagemUrl:"img/exercises/militar.jpg"},
+/* ── BÍCEPS ── */
+{id:48,nome:"Rosca Direta Barra EZ",grupo:"Bíceps",equip:"Barra W (EZ)",instrucoes:["Pegada supinada na EZ","Flexione até os ombros","Desça controlado"],videoUrl:"https://www.youtube.com/embed/ykJmrZ5v0Oo",imagemUrl:"img/exercises/rosca_direta.jpg"},
+{id:49,nome:"Rosca Alternada Halteres",grupo:"Bíceps",equip:"Halteres",instrucoes:["Halteres ao lado, alterne braços","Flexione supinando","Desça controlado"],videoUrl:"https://www.youtube.com/embed/sAq_ocpRh_I",imagemUrl:"img/exercises/rosca_alternada.jpg"},
+{id:50,nome:"Rosca Concentrada",grupo:"Bíceps",equip:"Haltere",instrucoes:["Cotovelo apoiado na coxa","Flexione até o ombro","Desça lentamente"],videoUrl:"https://www.youtube.com/embed/Jvj2wV0vOYU",imagemUrl:"img/exercises/rosca_concentrada.jpg"},
+{id:51,nome:"Rosca Martelo",grupo:"Bíceps",equip:"Halteres",instrucoes:["Pegada neutra ao lado","Flexione mantendo pegada neutra","Desça controlado"],videoUrl:"https://www.youtube.com/embed/zC3nLlEvin4",imagemUrl:"img/exercises/rosca_martelo.jpg"},
+{id:52,nome:"Rosca Scott Barra",grupo:"Bíceps",equip:"Banco Scott + Barra EZ",instrucoes:["Braços apoiados no banco","Flexione até o topo","Desça controlado"],videoUrl:"https://www.youtube.com/embed/fIWP-FRFNU0",imagemUrl:"img/exercises/rosca_scott.jpg"},
+{id:53,nome:"Rosca Cabo Baixo",grupo:"Bíceps",equip:"Cabo/Pulley",instrucoes:["Cabo baixo, pegada supinada","Flexione até os ombros","Desça controlado"],videoUrl:"https://www.youtube.com/embed/NFzTWp2qpiE",imagemUrl:"img/exercises/rosca_direta.jpg"},
+{id:54,nome:"Rosca Inclinada",grupo:"Bíceps",equip:"Halteres + Banco inclinado",instrucoes:["Banco a 45 graus, braços pendurados","Flexione os halteres","Desça alongando"],videoUrl:"https://www.youtube.com/embed/aTYlqC_JacQ",imagemUrl:"img/exercises/rosca_inclinada.jpg"},
+/* ── TRÍCEPS ── */
+{id:55,nome:"Tríceps Pulley Barra",grupo:"Tríceps",equip:"Cabo/Pulley",instrucoes:["Cabo alto com barra reta","Estenda empurrando para baixo","Retorne controlado"],videoUrl:"https://www.youtube.com/embed/2-LAMcpzODU",imagemUrl:"img/exercises/triceps_pulley.jpg"},
+{id:56,nome:"Tríceps Pulley Corda",grupo:"Tríceps",equip:"Cabo/Pulley",instrucoes:["Cabo alto com corda","Estenda abrindo as pontas","Retorne controlado"],videoUrl:"https://www.youtube.com/embed/kiuVA0gs3EI",imagemUrl:"img/exercises/triceps_pulley.jpg"},
+{id:57,nome:"Tríceps Testa Barra",grupo:"Tríceps",equip:"Barra EZ + Banco",instrucoes:["Deite, barra acima do peito","Desça em direção à testa","Estenda de volta"],videoUrl:"https://www.youtube.com/embed/NIyDVFP0Ixc",imagemUrl:"img/exercises/triceps_testa.jpg"},
+{id:58,nome:"Tríceps Francês Haltere",grupo:"Tríceps",equip:"Haltere",instrucoes:["Haltere acima da cabeça","Desça atrás da cabeça","Estenda de volta"],videoUrl:"https://www.youtube.com/embed/_gsUck-7M74",imagemUrl:"img/exercises/triceps_testa.jpg"},
+{id:59,nome:"Tríceps Coice Haltere",grupo:"Tríceps",equip:"Haltere + Banco",instrucoes:["Incline com cotovelo fixo","Estenda o braço para trás","Retorne controlado"],videoUrl:"https://www.youtube.com/embed/6SS6K3lAwZ8",imagemUrl:"img/exercises/triceps_coice.jpg"},
+{id:60,nome:"Tríceps Banco (Mergulho)",grupo:"Tríceps",equip:"Banco",instrucoes:["Mãos no banco atrás","Desça flexionando cotovelos","Suba estendendo"],videoUrl:"https://www.youtube.com/embed/6kALZikXxLc",imagemUrl:"img/exercises/triceps_banco.jpg"},
+{id:61,nome:"Tríceps Máquina",grupo:"Tríceps",equip:"Máquina tríceps",instrucoes:["Sente-se e segure as barras","Estenda empurrando para baixo","Retorne controlado"],videoUrl:"https://www.youtube.com/embed/d_KZxkY_0cM",imagemUrl:"img/exercises/triceps_pulley.jpg"},
+/* ── ABDÔMEN ── */
+{id:62,nome:"Abdominal Crunch",grupo:"Abdômen",equip:"Colchonete",instrucoes:["Deite com joelhos flexionados","Eleve contraindo abdômen","Desça controlado"],videoUrl:"https://www.youtube.com/embed/Xyd_fa5zoEU",imagemUrl:"img/exercises/abdominal.jpg"},
+{id:63,nome:"Abdominal Bicicleta",grupo:"Abdômen",equip:"Colchonete",instrucoes:["Deite, mãos atrás da cabeça","Pedale alternando cotovelo-joelho","Mantenha o ritmo"],videoUrl:"https://www.youtube.com/embed/9FGilxCbdz8",imagemUrl:"img/exercises/abdominal_bicicleta.jpg"},
+{id:64,nome:"Prancha",grupo:"Abdômen",equip:"Colchonete",instrucoes:["Apoie antebraços e pés","Corpo em linha reta","Segure o tempo determinado"],videoUrl:"https://www.youtube.com/embed/pSHjTRCQxIw",imagemUrl:"img/exercises/prancha.jpg"},
+{id:65,nome:"Elevação de Pernas",grupo:"Abdômen",equip:"Colchonete",instrucoes:["Deite com pernas estendidas","Eleve as pernas até 90 graus","Desça controlado"],videoUrl:"https://www.youtube.com/embed/JB2oyawG9KI",imagemUrl:"img/exercises/abdominal.jpg"},
+{id:66,nome:"Crunch no Cabo",grupo:"Abdômen",equip:"Cabo/Pulley",instrucoes:["Ajoelhe segurando a corda","Flexione o tronco para baixo","Retorne controlado"],videoUrl:"https://www.youtube.com/embed/AV5PmrIZikY",imagemUrl:"img/exercises/crunch_cabo.jpg"},
+{id:67,nome:"Elevação de Joelhos (Capitão)",grupo:"Abdômen",equip:"Suporte Capitão",instrucoes:["Apoie nos suportes","Eleve os joelhos ao peito","Desça controlado"],videoUrl:"https://www.youtube.com/embed/hdng3Nm1x_E",imagemUrl:"img/exercises/abdominal.jpg"},
+{id:68,nome:"Abdominal Declinado",grupo:"Abdômen",equip:"Banco declinado",instrucoes:["Pés presos no banco declinado","Suba contraindo abdômen","Desça controlado"],videoUrl:"https://www.youtube.com/embed/DEux9N4ZLis",imagemUrl:"img/exercises/abdominal_declinado.jpg"},
+/* ── CARDIO ── */
+{id:69,nome:"Esteira (Corrida)",grupo:"Cardio",equip:"Esteira",instrucoes:["Ajuste velocidade e inclinação","Corra mantendo postura","Controle a respiração"],videoUrl:"https://www.youtube.com/embed/brFHyOtTwH4",imagemUrl:"img/exercises/burpee.jpg"},
+{id:70,nome:"Bicicleta Ergométrica",grupo:"Cardio",equip:"Bicicleta",instrucoes:["Ajuste altura do banco","Pedale mantendo ritmo","Controle a resistência"],videoUrl:"https://www.youtube.com/embed/4ssLDk1eX9w",imagemUrl:"img/exercises/burpee.jpg"},
+{id:71,nome:"Elíptico",grupo:"Cardio",equip:"Elíptico",instrucoes:["Segure as barras","Movimente braços e pernas","Mantenha postura ereta"],videoUrl:"https://www.youtube.com/embed/MbBTPicxDkA",imagemUrl:"img/exercises/burpee.jpg"},
+{id:72,nome:"Remo Ergométrico",grupo:"Cardio",equip:"Remo",instrucoes:["Segure a barra com braços estendidos","Puxe empurrando com pernas","Retorne controlado"],videoUrl:"https://www.youtube.com/embed/EYjKQ_Q4svc",imagemUrl:"img/exercises/remada_curvada.jpg"},
+/* ── FUNCIONAL ── */
+{id:73,nome:"Kettlebell Swing",grupo:"Funcional",equip:"Kettlebell",instrucoes:["Segure o kettlebell entre as pernas","Balance para frente contraindo glúteos","Controle a descida"],videoUrl:"https://www.youtube.com/embed/YSxHifyI6s8",imagemUrl:"img/exercises/kettlebell.jpg"},
+{id:74,nome:"Box Jump",grupo:"Funcional",equip:"Plyo Box",instrucoes:["Fique de frente para a caixa","Salte aterrissando em cima","Desça controlado"],videoUrl:"https://www.youtube.com/embed/52r_Ul5k03g",imagemUrl:"img/exercises/box_jump.jpg"},
+{id:75,nome:"Burpee",grupo:"Funcional",equip:"Nenhum",instrucoes:["Agache e coloque mãos no chão","Estenda pernas atrás e faça flexão","Salte para cima"],videoUrl:"https://www.youtube.com/embed/TU8QYVW0gDU",imagemUrl:"img/exercises/burpee.jpg"},
+{id:76,nome:"Battle Rope",grupo:"Funcional",equip:"Corda naval",instrucoes:["Segure as pontas da corda","Faça ondas alternando braços","Mantenha o ritmo"],videoUrl:"https://www.youtube.com/embed/pYcpY20QaE8",imagemUrl:"img/exercises/kettlebell.jpg"},
+{id:77,nome:"TRX Remada",grupo:"Funcional",equip:"TRX",instrucoes:["Segure as fitas inclinado","Puxe o corpo em direção às mãos","Desça controlado"],videoUrl:"https://www.youtube.com/embed/pYcpY20QaE8",imagemUrl:"img/exercises/remada_curvada.jpg"},
+{id:78,nome:"Goblet Squat",grupo:"Funcional",equip:"Kettlebell ou Haltere",instrucoes:["Segure o peso no peito","Agache mantendo tronco ereto","Suba empurrando"],videoUrl:"https://www.youtube.com/embed/MeIiIdhvXT4",imagemUrl:"img/exercises/goblet.jpg"}
+];
+EX_DB.forEach(function(ex){
+if(!ex.dificuldade)ex.dificuldade="Intermediário";
+if(!ex.musculosPrimarios){var MP={"Peito":["Peitoral maior","Tríceps","Deltoide anterior"],"Costas":["Latíssimo","Trapézio","Romboides"],"Pernas":["Quadríceps","Glúteo","Posterior de coxa"],"Ombro":["Deltoide","Trapézio"],"Bíceps":["Bíceps braquial","Braquial"],"Tríceps":["Tríceps braquial"],"Abdômen":["Reto abdominal","Oblíquos"],"Funcional":["Full body"],"Cardio":["Full body"]};ex.musculosPrimarios=MP[ex.grupo]||[ex.grupo];}
+if(!ex.videoUrl)ex.videoUrl="https://www.youtube.com/embed/dQw4w9WgXcQ";
+});
+var FOODS_DB=[
+/* ref: c=cafe, p=pre-treino, a=almoco, t=tarde, j=jantar, s=ceia */
+/* ── Ovos / Proteínas ── */
+{id:1,nome:"Ovo mexido",cal:154,prot:11,carb:1.6,gord:12,ref:"cpaj"},
+{id:2,nome:"Ovo cozido",cal:155,prot:13,carb:1.1,gord:11,ref:"cpatjs"},
+{id:3,nome:"Ovo estrelado",cal:196,prot:14,carb:0.6,gord:15,ref:"caj"},
+{id:4,nome:"Omelete",cal:154,prot:11,carb:1,gord:12,ref:"cajt"},
+{id:5,nome:"Clara de ovo",cal:52,prot:11,carb:0.7,gord:0.2,ref:"cpatjs"},
+{id:6,nome:"Frango grelhado",cal:165,prot:31,carb:0,gord:3.6,ref:"pajs"},
+{id:7,nome:"Frango assado",cal:190,prot:29,carb:0,gord:7.4,ref:"aj"},
+{id:8,nome:"Peito de frango",cal:165,prot:31,carb:0,gord:3.6,ref:"paj"},
+{id:9,nome:"Patinho bovino",cal:133,prot:26,carb:0,gord:3,ref:"aj"},
+{id:10,nome:"Alcatra",cal:153,prot:26,carb:0,gord:5,ref:"aj"},
+{id:11,nome:"Carne moída magra",cal:137,prot:21,carb:0,gord:5.5,ref:"aj"},
+{id:12,nome:"Filé mignon",cal:143,prot:27,carb:0,gord:3.5,ref:"aj"},
+{id:13,nome:"Tilápia",cal:96,prot:20,carb:0,gord:1.7,ref:"aj"},
+{id:14,nome:"Salmão",cal:208,prot:20,carb:0,gord:13,ref:"aj"},
+{id:15,nome:"Atum em lata",cal:116,prot:25.5,carb:0,gord:1,ref:"patj"},
+{id:16,nome:"Sardinha",cal:208,prot:25,carb:0,gord:11,ref:"aj"},
+{id:17,nome:"Camarão",cal:99,prot:24,carb:0.2,gord:0.3,ref:"aj"},
+{id:18,nome:"Tofu grelhado",cal:76,prot:8,carb:1.9,gord:4.8,ref:"aj"},
+{id:19,nome:"Tempeh",cal:192,prot:20,carb:7.6,gord:10.8,ref:"aj"},
+/* ── Laticínios ── */
+{id:20,nome:"Iogurte grego",cal:97,prot:9,carb:3.6,gord:5,ref:"ctps"},
+{id:21,nome:"Iogurte natural",cal:63,prot:3.5,carb:4.7,gord:3.3,ref:"ct"},
+{id:22,nome:"Queijo minas frescal",cal:264,prot:17,carb:3,gord:20,ref:"ctps"},
+{id:23,nome:"Queijo cottage",cal:98,prot:11,carb:3.4,gord:4.3,ref:"ctjs"},
+{id:24,nome:"Ricota",cal:174,prot:11,carb:6,gord:13,ref:"cts"},
+{id:25,nome:"Requeijão light",cal:155,prot:10,carb:3,gord:11,ref:"ct"},
+{id:26,nome:"Leite integral",cal:61,prot:3.2,carb:4.8,gord:3.5,ref:"cs"},
+{id:27,nome:"Leite desnatado",cal:35,prot:3.5,carb:5,gord:0.1,ref:"cs"},
+{id:28,nome:"Whey protein (dose)",cal:120,prot:24,carb:3,gord:1.5,ref:"pts"},
+{id:29,nome:"Caseína (dose)",cal:112,prot:24,carb:3,gord:0.5,ref:"s"},
+/* ── Pães e Cereais ── */
+{id:30,nome:"Pão integral",cal:247,prot:9,carb:41,gord:3.4,ref:"cpat"},
+{id:31,nome:"Pão francês",cal:300,prot:8,carb:58,gord:3.1,ref:"cpt"},
+{id:32,nome:"Tapioca (goma)",cal:345,prot:0.5,carb:86,gord:0.1,ref:"cpt"},
+{id:33,nome:"Cuscuz nordestino",cal:112,prot:3.7,carb:23,gord:0.2,ref:"cpaj"},
+{id:34,nome:"Aveia em flocos",cal:389,prot:17,carb:66,gord:7,ref:"cpts"},
+{id:35,nome:"Granola",cal:471,prot:10,carb:64,gord:20,ref:"ct"},
+{id:36,nome:"Torrada integral",cal:360,prot:10,carb:70,gord:5,ref:"ct"},
+{id:37,nome:"Panqueca de aveia",cal:200,prot:10,carb:28,gord:5,ref:"ct"},
+{id:38,nome:"Biscoito de arroz",cal:381,prot:7.8,carb:82,gord:2.8,ref:"pt"},
+/* ── Arroz / Carbs almoço ── */
+{id:39,nome:"Arroz branco cozido",cal:130,prot:2.7,carb:28,gord:0.3,ref:"paj"},
+{id:40,nome:"Arroz integral cozido",cal:111,prot:2.6,carb:23,gord:0.9,ref:"paj"},
+{id:41,nome:"Batata doce cozida",cal:86,prot:1.6,carb:20,gord:0.1,ref:"pajs"},
+{id:42,nome:"Batata inglesa cozida",cal:77,prot:2,carb:17,gord:0.1,ref:"paj"},
+{id:43,nome:"Macarrão integral",cal:124,prot:5,carb:26,gord:0.5,ref:"aj"},
+{id:44,nome:"Macarrão simples",cal:131,prot:4.5,carb:25,gord:1.5,ref:"paj"},
+{id:45,nome:"Mandioca cozida",cal:125,prot:1,carb:30,gord:0.2,ref:"aj"},
+{id:46,nome:"Quinoa cozida",cal:120,prot:4.4,carb:21,gord:1.9,ref:"aj"},
+{id:47,nome:"Inhame cozido",cal:118,prot:1.5,carb:28,gord:0.2,ref:"paj"},
+{id:48,nome:"Polenta",cal:70,prot:1.5,carb:15,gord:0.3,ref:"aj"},
+/* ── Feijões e Leguminosas ── */
+{id:49,nome:"Feijão carioca",cal:76,prot:4.8,carb:14,gord:0.5,ref:"aj"},
+{id:50,nome:"Feijão preto",cal:132,prot:8.9,carb:24,gord:0.5,ref:"aj"},
+{id:51,nome:"Lentilha cozida",cal:116,prot:9,carb:20,gord:0.4,ref:"aj"},
+{id:52,nome:"Grão-de-bico cozido",cal:164,prot:9,carb:27,gord:2.6,ref:"atj"},
+{id:53,nome:"Ervilha cozida",cal:81,prot:5,carb:14,gord:0.4,ref:"aj"},
+{id:54,nome:"Edamame",cal:121,prot:12,carb:9,gord:5,ref:"atj"},
+/* ── Frutas ── */
+{id:55,nome:"Banana",cal:89,prot:1.1,carb:23,gord:0.3,ref:"cpat"},
+{id:56,nome:"Maçã",cal:52,prot:0.3,carb:14,gord:0.2,ref:"ct"},
+{id:57,nome:"Mamão",cal:40,prot:0.5,carb:10,gord:0.1,ref:"c"},
+{id:58,nome:"Melão",cal:34,prot:0.8,carb:8,gord:0.2,ref:"ct"},
+{id:59,nome:"Melancia",cal:30,prot:0.6,carb:8,gord:0.2,ref:"ct"},
+{id:60,nome:"Laranja",cal:47,prot:0.9,carb:12,gord:0.1,ref:"ct"},
+{id:61,nome:"Morango",cal:32,prot:0.7,carb:8,gord:0.3,ref:"ct"},
+{id:62,nome:"Manga",cal:60,prot:0.8,carb:15,gord:0.4,ref:"ct"},
+{id:63,nome:"Abacaxi",cal:50,prot:0.5,carb:13,gord:0.1,ref:"ct"},
+{id:64,nome:"Uva",cal:69,prot:0.7,carb:18,gord:0.2,ref:"ctp"},
+{id:65,nome:"Kiwi",cal:61,prot:1.1,carb:15,gord:0.5,ref:"ct"},
+/* ── Gorduras boas ── */
+{id:66,nome:"Pasta de amendoim",cal:588,prot:25,carb:20,gord:50,ref:"cpts"},
+{id:67,nome:"Amendoim torrado",cal:567,prot:26,carb:16,gord:49,ref:"ts"},
+{id:68,nome:"Castanha-do-pará",cal:659,prot:14,carb:12,gord:67,ref:"ts"},
+{id:69,nome:"Nozes",cal:654,prot:15,carb:14,gord:65,ref:"ts"},
+{id:70,nome:"Amêndoas",cal:579,prot:21,carb:22,gord:50,ref:"ts"},
+{id:71,nome:"Abacate",cal:160,prot:2,carb:9,gord:15,ref:"cts"},
+{id:72,nome:"Azeite (10ml)",cal:88,prot:0,carb:0,gord:10,ref:"aj"},
+{id:73,nome:"Mel (colher)",cal:304,prot:0.3,carb:82,gord:0,ref:"cps"},
+/* ── Legumes e Verduras ── */
+{id:74,nome:"Brócolis",cal:34,prot:2.8,carb:7,gord:0.4,ref:"aj"},
+{id:75,nome:"Couve-flor",cal:25,prot:1.9,carb:5,gord:0.3,ref:"aj"},
+{id:76,nome:"Abobrinha",cal:17,prot:1.2,carb:3,gord:0.3,ref:"aj"},
+{id:77,nome:"Alface",cal:15,prot:1.4,carb:2.9,gord:0.2,ref:"aj"},
+{id:78,nome:"Rúcula",cal:25,prot:2.6,carb:3.7,gord:0.7,ref:"aj"},
+{id:79,nome:"Espinafre",cal:23,prot:2.9,carb:3.6,gord:0.4,ref:"aj"},
+{id:80,nome:"Tomate",cal:18,prot:0.9,carb:3.9,gord:0.2,ref:"aj"},
+{id:81,nome:"Cenoura",cal:41,prot:0.9,carb:10,gord:0.2,ref:"aj"},
+{id:82,nome:"Pepino",cal:15,prot:0.7,carb:3.6,gord:0.1,ref:"aj"},
+{id:83,nome:"Beterraba",cal:43,prot:1.6,carb:10,gord:0.2,ref:"aj"},
+{id:84,nome:"Vagem",cal:31,prot:1.8,carb:7,gord:0.1,ref:"aj"},
+{id:85,nome:"Couve refogada",cal:90,prot:3,carb:6,gord:6,ref:"aj"},
+{id:86,nome:"Berinjela",cal:25,prot:1,carb:6,gord:0.2,ref:"aj"},
+{id:87,nome:"Chuchu cozido",cal:17,prot:0.6,carb:3.8,gord:0.1,ref:"aj"},
+/* ── Sopas (Jantar) ── */
+{id:88,nome:"Sopa de legumes",cal:45,prot:2,carb:8,gord:0.5,ref:"j"},
+{id:89,nome:"Sopa de frango c/ legumes",cal:70,prot:8,carb:6,gord:1.5,ref:"j"},
+{id:90,nome:"Creme de mandioquinha",cal:80,prot:2,carb:15,gord:1.5,ref:"j"},
+{id:91,nome:"Sopa de lentilha",cal:95,prot:7,carb:15,gord:0.8,ref:"j"},
+/* ── Bebidas ── */
+{id:92,nome:"Café preto",cal:2,prot:0.3,carb:0,gord:0,ref:"cpt"},
+{id:93,nome:"Café com leite",cal:40,prot:2,carb:3,gord:2,ref:"ct"},
+{id:94,nome:"Chá verde",cal:1,prot:0,carb:0.2,gord:0,ref:"cpt"},
+{id:95,nome:"Suco de laranja natural",cal:45,prot:0.7,carb:10,gord:0.2,ref:"cp"},
+{id:96,nome:"Água de coco",cal:19,prot:0.7,carb:3.7,gord:0.2,ref:"p"},
+{id:97,nome:"Chá de camomila",cal:1,prot:0,carb:0.2,gord:0,ref:"ts"},
+{id:98,nome:"Leite morno",cal:61,prot:3.2,carb:4.8,gord:3.5,ref:"s"},
+{id:99,nome:"Chá de maracujá",cal:2,prot:0,carb:0.5,gord:0,ref:"s"},
+/* ── Combinações pré/pós treino ── */
+{id:100,nome:"Banana + pasta de amendoim",cal:190,prot:5,carb:28,gord:8,ref:"p"},
+{id:101,nome:"Tapioca + frango",cal:250,prot:22,carb:32,gord:4,ref:"p"},
+{id:102,nome:"Whey + banana (shake)",cal:209,prot:25,carb:26,gord:1.8,ref:"p"},
+{id:103,nome:"Aveia + banana + mel",cal:250,prot:8,carb:50,gord:3,ref:"cp"},
+{id:104,nome:"Pão integral + ovo",cal:235,prot:15,carb:28,gord:7,ref:"cp"},
+/* ── Combinações ceia ── */
+{id:105,nome:"Cottage + canela",cal:100,prot:11,carb:4,gord:4.3,ref:"s"},
+{id:106,nome:"Iogurte grego + pasta de amendoim",cal:200,prot:14,carb:10,gord:12,ref:"s"},
+{id:107,nome:"Leite morno + aveia",cal:150,prot:7,carb:22,gord:4,ref:"s"},
+{id:108,nome:"Shake de caseína",cal:130,prot:24,carb:4,gord:1,ref:"s"},
+/* ── Snacks tarde ── */
+{id:109,nome:"Barra de proteína",cal:200,prot:20,carb:22,gord:7,ref:"t"},
+{id:110,nome:"Barra de cereal integral",cal:120,prot:3,carb:22,gord:3,ref:"tp"},
+{id:111,nome:"Mix de castanhas",cal:607,prot:15,carb:21,gord:54,ref:"t"},
+{id:112,nome:"Frutas secas (tâmara/damasco)",cal:280,prot:2,carb:70,gord:0.5,ref:"tp"},
+{id:113,nome:"Vitamina de frutas",cal:120,prot:3,carb:25,gord:1,ref:"ct"}
+];
+var MEALS=[{id:"cafe",nome:"Café da manhã",icon:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#22C55E" stroke-width="2" fill="none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>'},{id:"pre",nome:"Pré-treino",icon:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#22C55E" stroke-width="2" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'},{id:"almoco",nome:"Almoço",icon:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#22C55E" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/></svg>'},{id:"tarde",nome:"Café da tarde",icon:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#22C55E" stroke-width="2" fill="none"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>'},{id:"jantar",nome:"Jantar",icon:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#22C55E" stroke-width="2" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'},{id:"ceia",nome:"Ceia",icon:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#22C55E" stroke-width="2" fill="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'}];
+
+/* ═══════════ STORAGE ═══════════ */
+var S={set:function(k,v){localStorage.setItem("gt_"+k,JSON.stringify(v));},get:function(k,d){try{var v=localStorage.getItem("gt_"+k);return v?JSON.parse(v):d;}catch(e){return d;}}};
+function cfg(){return S.get("cfg",{nome:"Atleta",objetivo:"Hipertrofia",peso:75,altura:175,metaTreinos:4,descanso:60,metaCal:2200,metaProt:180,metaCarb:220,metaGord:65});}
+function saveCfg(c){S.set("cfg",c);}function wks(){return S.get("wks",null);}function saveWks(w){S.set("wks",w);}function hist(){return S.get("hist",[]);}function saveHist(h){S.set("hist",h);}function dlog(){return S.get("dlog",{});}function saveDlog(d){S.set("dlog",d);}function wlog(){return S.get("wlog",[]);}function saveWlog(w){S.set("wlog",w);}function prs(){return S.get("prs",{});}function savePrs(p){S.set("prs",p);}function score(){return S.get("score",0);}function saveScore(s){S.set("score",s);updScore();}function addPts(p){var n=score()+p;saveScore(n);return n;}function cfoods(){return S.get("cfoods",[]);}function saveCfoods(f){S.set("cfoods",f);}function today(){return new Date().toISOString().slice(0,10);}function updScore(){var e=document.getElementById("sbScore");if(e)e.textContent=score().toLocaleString();}
+
+/* ═══════════ GIF LOADER ═══════════ */
+var _gifCache={};
+async function loadExGif(imgEl,exNome){
+if(!imgEl)return;
+var cached=_gifCache[exNome]||localStorage.getItem('gif_'+exNome);
+if(cached){_gifCache[exNome]=cached;imgEl.src=cached;imgEl.style.display='block';return;}
+var nameMap={
+"Supino Reto Barra":"barbell bench press","Supino Inclinado Halteres":"incline dumbbell press",
+"Crucifixo Halteres":"dumbbell flyes","Puxada Frontal":"lat pulldown",
+"Remada Curvada Barra":"bent over barbell row","Remada Unilateral Haltere":"dumbbell row",
+"Agachamento Livre":"barbell squat","Leg Press 45°":"leg press",
+"Cadeira Extensora":"leg extensions","Mesa Flexora":"lying leg curls",
+"Stiff":"romanian deadlift","Desenvolvimento Halteres":"dumbbell shoulder press",
+"Elevação Lateral":"lateral raise","Remada Alta Barra":"upright row",
+"Rosca Direta Barra EZ":"barbell curl","Rosca Concentrada":"concentration curls",
+"Tríceps Pulley Barra":"triceps pushdown","Tríceps Testa Barra":"lying triceps press",
+"Prancha Abdominal":"plank","Abdominal Crunch":"crunch",
+"Levantamento Terra":"deadlift","Agachamento Sumô":"sumo deadlift",
+"Passada Halteres":"dumbbell lunge","Desenvolvimento Militar":"barbell shoulder press",
+"Rosca Alternada":"alternate hammer curl","Rosca Martelo":"hammer curls",
+"Kettlebell Swing":"kettlebell swing","Goblet Squat":"goblet squat",
+"Box Jump":"box jump","Burpee":"burpees","Hack Squat":"hack squat"
+};
+var term=nameMap[exNome]||exNome;
+try{
+var r=await fetch('https://exercisedb.dev/api/v1/exercises/name/'+encodeURIComponent(term)+'?limit=1',{headers:{'x-api-key':'open'}});
+if(!r.ok)throw new Error('fail');
+var d=await r.json();
+var ex=Array.isArray(d)?d[0]:d.data&&d.data[0];
+if(ex&&ex.gifUrl){_gifCache[exNome]=ex.gifUrl;localStorage.setItem('gif_'+exNome,ex.gifUrl);if(imgEl.parentNode){imgEl.src=ex.gifUrl;imgEl.style.display='block';}}
+}catch(e){console.log('GIF fallback para:',exNome);}
+}
+
+/* ═══════════ INIT ═══════════ */
+function initDefaults(){var ver=S.get("dbVer",0);if(ver>=2&&wks()!==null)return;S.set("dbVer",2);saveWks([{id:1,nome:"Peito + Tríceps",grupo:"Peito",exercicios:[{exId:1,series:4,reps:10,carga:60,descanso:60},{exId:4,series:3,reps:12,carga:20,descanso:60},{exId:5,series:3,reps:15,carga:14,descanso:45},{exId:55,series:4,reps:12,carga:30,descanso:45},{exId:57,series:3,reps:10,carga:20,descanso:60}]},{id:2,nome:"Costas + Bíceps",grupo:"Costas",exercicios:[{exId:12,series:4,reps:10,carga:50,descanso:60},{exId:16,series:4,reps:10,carga:40,descanso:60},{exId:17,series:3,reps:12,carga:18,descanso:45},{exId:48,series:3,reps:12,carga:20,descanso:45},{exId:50,series:3,reps:10,carga:12,descanso:45}]},{id:3,nome:"Pernas",grupo:"Pernas",exercicios:[{exId:23,series:4,reps:8,carga:80,descanso:90},{exId:27,series:4,reps:12,carga:120,descanso:90},{exId:28,series:3,reps:15,carga:40,descanso:45},{exId:29,series:3,reps:15,carga:35,descanso:45},{exId:31,series:3,reps:12,carga:30,descanso:60}]}]);}
+initDefaults();updScore();
+setTimeout(function(){var toLoad=EX_DB.filter(function(ex){return !localStorage.getItem('gif_'+ex.nome);}).slice(0,10);toLoad.forEach(function(ex,i){setTimeout(function(){var fakeImg=new Image();loadExGif(fakeImg,ex.nome);},i*800);});},3000);
+
+
+/* ═══════════ ROUTER ═══════════ */
+var M=document.getElementById("main");var C2PI=2*Math.PI;
+function go(hash){var p=hash.replace("#","")||"dashboard";document.querySelectorAll("#navLinks a").forEach(function(a){a.classList.toggle("act",a.dataset.p===p);});var R={dashboard:pgDash,workouts:pgWork,diet:pgDiet,progress:pgProg,settings:pgSet};(R[p]||R.dashboard)();updScore();}
+window.addEventListener("hashchange",function(){go(location.hash);});
+document.querySelectorAll("#navLinks a").forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();location.hash=a.getAttribute("href");});});
+
+/* ═══════════ HELPERS ═══════════ */
+function el(tag,cls){var e=document.createElement(tag);if(cls)e.className=cls;return e;}
+function closeModal(){document.querySelectorAll(".overlay").forEach(function(o){o.remove();});}
+function beep(){try{var c=new(window.AudioContext||window.webkitAudioContext)();var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;o.type="square";g.gain.value=0.25;o.start();o.stop(c.currentTime+0.25);setTimeout(function(){var o2=c.createOscillator(),g2=c.createGain();o2.connect(g2);g2.connect(c.destination);o2.frequency.value=1100;o2.type="square";g2.gain.value=0.25;o2.start();o2.stop(c.currentTime+0.35);},300);}catch(e){}}
+function pct(v,t){return Math.min(100,Math.round(v/t*100));}
+function fmtDate(d){return new Date(d+"T12:00:00").toLocaleDateString("pt-BR");}
+function exThumb(ex){if(ex.imagemUrl)return ex.imagemUrl;return 'https://placehold.co/480x260/0D1F14/22C55E?text='+encodeURIComponent(ex.nome);}
+function genTimeDrop(mealId,sel){var lbl=sel||'--:--';var h='<div class="cdrop" id="td_'+mealId+'">';h+='<div class="cdrop-btn" onclick="event.stopPropagation();togDrop(\''+mealId+'\')">'+lbl+' '+IC.clock+'</div>';h+='<div class="cdrop-list" id="tdl_'+mealId+'">';h+='<div class="opt'+((!sel)?' sel':'')+'" onclick="event.stopPropagation();pickTime(\''+mealId+'\',\'\')">--:--</div>';for(var i=5;i<=23;i++){for(var j=0;j<60;j+=30){var t=String(i).padStart(2,'0')+':'+String(j).padStart(2,'0');h+='<div class="opt'+(t===sel?' sel':'')+'" onclick="event.stopPropagation();pickTime(\''+mealId+'\',\''+t+'\')">'+t+'</div>';}}h+='</div></div>';return h;}
+window.togDrop=function(mid){var list=document.getElementById('tdl_'+mid);if(!list)return;var isOpen=list.classList.contains('show');document.querySelectorAll('.cdrop-list.show').forEach(function(l){l.classList.remove('show');});if(!isOpen)list.classList.toggle('show');};
+window.pickTime=function(mid,val){setMealTime(mid,val);document.querySelectorAll('.cdrop-list.show').forEach(function(l){l.classList.remove('show');});pgDiet();};
+document.addEventListener('click',function(){document.querySelectorAll('.cdrop-list.show').forEach(function(l){l.classList.remove('show');});});
+/* SVG icon helper */
+var IC={
+house:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+dumbbell:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><rect x="6.5" y="4" width="11" height="16" rx="1"/><line x1="12" y1="8" x2="12" y2="16"/></svg>',
+utensils:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 2l1 16a5 5 0 0 0 5 5h0a5 5 0 0 0 5-5L15 2"/><line x1="9" y1="2" x2="9" y2="8"/><path d="M18 2v20"/></svg>',
+chart:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+gear:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+flame:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#22C55E" stroke-width="2" fill="none"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
+trophy:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#22C55E" stroke-width="2" fill="none"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>',
+target:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#22C55E" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+check:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polyline points="20 6 9 17 4 12"/></svg>',
+play:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>',
+chevL:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polyline points="15 18 9 12 15 6"/></svg>',
+chevR:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polyline points="9 18 15 12 9 6"/></svg>',
+clock:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+scale:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#22C55E" stroke-width="2" fill="none"><path d="M16 3H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="12" y1="7" x2="12" y2="13"/></svg>',
+medal:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#22C55E" stroke-width="2" fill="none"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>',
+calendar:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#22C55E" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+trending:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#22C55E" stroke-width="2" fill="none"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+clipboard:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>',
+edit:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+trash:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+save:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>',
+download:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+stop:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>',
+grip:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg>',
+user:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+warn:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#FACC15" stroke-width="2" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+flag:'<svg viewBox="0 0 24 24" width="18" height="18" stroke="#22C55E" stroke-width="2" fill="none"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>'
+};
+function getDiasTreinados(){return S.get("diasTreinados",[]);}
+function saveDiasTreinados(d){S.set("diasTreinados",d);}
+function getMealOrder(){return S.get("ordemRefeicoes",MEALS.map(function(m){return m.id;}));}
+function saveMealOrder(o){S.set("ordemRefeicoes",o);}
+function getMealTimes(){return S.get("horariosRefeicoes",{});}
+function saveMealTimes(t){S.set("horariosRefeicoes",t);}
+
+/* ═══════════════════════════════════════════════════════════════
+   DASHBOARD
+   ═══════════════════════════════════════════════════════════════ */
+function pgDash(){
+  var c=cfg(),h=hist(),dl=dlog(),td=today(),dd=dl[td]||{};var tCal=0,tPr=0,tCa=0,tGo=0;
+  MEALS.forEach(function(m){(dd[m.id]||[]).forEach(function(i){tCal+=i.cal||0;tPr+=i.prot||0;tCa+=i.carb||0;tGo+=i.gord||0;});});
+  var streak=0;for(var i=0;i<365;i++){var d=new Date();d.setDate(d.getDate()-i);var ds=d.toISOString().slice(0,10);if(h.some(function(x){return x.data&&x.data.slice(0,10)===ds;})||(dl[ds]&&Object.values(dl[ds]).some(function(a){return a&&a.length>0;})))streak++;else break;}
+  var now=new Date(),ws=new Date(now);ws.setDate(now.getDate()-now.getDay());ws.setHours(0,0,0,0);
+  var ww=h.filter(function(x){return new Date(x.data)>=ws;}).length;
+  var mealsN=MEALS.filter(function(m){return dd[m.id]&&dd[m.id].length>0;}).length;
+  var rec=h.slice(-3).reverse();var sc=score();
+  M.innerHTML='<div class="hdr"><div><h2>Dashboard</h2><p>Olá, '+c.nome+'! Acompanhe seu progresso.</p></div><button class="btn btn-g" onclick="location.hash=\'#workouts\'">'+IC.dumbbell+' Treinos</button></div><div class="g3"><div class="card" style="text-align:center"><h4 style="margin-bottom:14px">'+IC.trophy+' Score</h4><div class="ccir"><svg viewBox="0 0 170 170" width="170" height="170"><circle class="cbg" cx="85" cy="85" r="72"/><circle class="cfg" cx="85" cy="85" r="72" stroke-dasharray="'+C2PI*72+'" stroke-dashoffset="'+C2PI*72*(1-Math.min(sc/5000,1))+'"/></svg><div class="ctx"><div class="cn" style="color:var(--green)">'+sc.toLocaleString()+'</div><div class="cl">pontos</div></div></div></div><div class="card"><h4 style="margin-bottom:14px">'+IC.flame+' Streak &amp; Metas</h4><div style="display:grid;gap:12px"><div class="stat"><div class="lbl">'+IC.flame+' Dias seguidos</div><div class="val">'+streak+'</div></div><div class="stat"><div class="lbl">'+IC.dumbbell+' Treinos esta semana</div><div class="val">'+ww+'/'+c.metaTreinos+'</div></div><div class="stat"><div class="lbl">'+IC.utensils+' Refeições hoje</div><div class="val">'+mealsN+'/6</div></div></div></div><div class="card"><h4 style="margin-bottom:14px">'+IC.utensils+' Nutrição Hoje</h4><div style="display:grid;gap:12px"><div><div style="display:flex;justify-content:space-between;font-size:.85rem"><span style="color:var(--muted)">Calorias</span><span>'+Math.round(tCal)+'/'+c.metaCal+'</span></div><div class="pbar"><div class="f gr" style="width:'+pct(tCal,c.metaCal)+'%"></div></div></div><div><div style="display:flex;justify-content:space-between;font-size:.85rem"><span style="color:var(--muted)">Proteína</span><span>'+Math.round(tPr)+'g/'+c.metaProt+'g</span></div><div class="pbar"><div class="f bl" style="width:'+pct(tPr,c.metaProt)+'%"></div></div></div><div><div style="display:flex;justify-content:space-between;font-size:.85rem"><span style="color:var(--muted)">Carboidrato</span><span>'+Math.round(tCa)+'g/'+c.metaCarb+'g</span></div><div class="pbar"><div class="f yl" style="width:'+pct(tCa,c.metaCarb)+'%"></div></div></div><div><div style="display:flex;justify-content:space-between;font-size:.85rem"><span style="color:var(--muted)">Gordura</span><span>'+Math.round(tGo)+'g/'+c.metaGord+'g</span></div><div class="pbar"><div class="f rd" style="width:'+pct(tGo,c.metaGord)+'%"></div></div></div></div></div><div class="card" style="grid-column:span 2"><h4 style="margin-bottom:14px">'+IC.clipboard+' Histórico Recente</h4>'+(rec.length===0?'<p style="color:var(--muted)">Nenhum treino registrado ainda.</p>':rec.map(function(r){return '<div style="padding:12px;border-radius:12px;background:rgba(255,255,255,.04);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center"><div><strong>'+r.nome+'</strong><div style="color:var(--muted);font-size:.8rem;margin-top:3px">'+(r.data?fmtDate(r.data.slice(0,10)):"")+" · "+(r.duracao||0)+'min</div></div><div style="text-align:right"><div style="color:var(--green);font-weight:700">'+(r.volume||0).toLocaleString()+'kg</div><div style="color:var(--muted);font-size:.75rem">+'+(r.pontos||0)+'pts</div></div></div>';}).join(""))+'</div><div class="card"><h4 style="margin-bottom:14px">'+IC.target+' Dicas</h4><div style="display:grid;gap:8px">'+(tPr<c.metaProt*0.5?'<div style="padding:10px;border-radius:10px;background:rgba(239,68,68,.08);font-size:.85rem">'+IC.warn+' Proteína baixa!</div>':'<div style="padding:10px;border-radius:10px;background:rgba(34,197,94,.08);font-size:.85rem">'+IC.check+' Proteína OK!</div>')+(ww<c.metaTreinos?'<div style="padding:10px;border-radius:10px;background:rgba(250,204,21,.08);font-size:.85rem">'+IC.dumbbell+' Faltam '+(c.metaTreinos-ww)+' treino(s)</div>':'<div style="padding:10px;border-radius:10px;background:rgba(34,197,94,.08);font-size:.85rem">'+IC.trophy+' Meta atingida!</div>')+(streak>=7?'<div style="padding:10px;border-radius:10px;background:rgba(34,197,94,.08);font-size:.85rem">'+IC.flame+' Streak 7+ dias!</div>':'<div style="padding:10px;border-radius:10px;background:rgba(255,255,255,.03);font-size:.85rem">'+IC.calendar+' Aumente seu streak!</div>')+'</div></div></div>';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   WORKOUTS — LIST
+   ═══════════════════════════════════════════════════════════════ */
+function pgWork(){var w=wks()||[];M.innerHTML='<div class="hdr"><div><h2>Treinos</h2><p>Gerencie e inicie seus treinos.</p></div><div style="display:flex;gap:8px"><button class="btn btn-s" onclick="pgWorkHist()">'+IC.clipboard+' Histórico</button><button class="btn btn-g" onclick="openWkEdit()">+ Novo Treino</button></div></div><div class="g3">'+w.map(function(t){var n=t.exercicios?t.exercicios.length:0;return '<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:14px"><div><h4>'+t.nome+'</h4><span class="badge bg-g" style="margin-top:5px">'+t.grupo+'</span></div><span style="color:var(--muted);font-size:.82rem">'+n+' ex</span></div><div style="margin-bottom:14px">'+(t.exercicios||[]).slice(0,4).map(function(e){var ex=EX_DB.find(function(x){return x.id===e.exId;});return '<div style="font-size:.82rem;color:var(--muted);padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)">'+(ex?ex.nome:"?")+" — "+e.series+"x"+e.reps+'</div>';}).join("")+(n>4?'<div style="font-size:.78rem;color:var(--muted)">+'+(n-4)+' mais</div>':'')+'</div><div style="display:flex;gap:6px"><button class="btn btn-g btn-sm" style="flex:1" onclick="startWk('+t.id+')">'+IC.play+' Iniciar</button><button class="btn btn-s btn-sm" onclick="openWkEdit('+t.id+')">'+IC.edit+'</button><button class="btn btn-s btn-sm" onclick="delWk('+t.id+')" style="color:var(--red)">'+IC.trash+'</button></div></div>';}).join("")+'</div>';}
+window.delWk=function(id){if(!confirm("Excluir?"))return;saveWks((wks()||[]).filter(function(w){return w.id!==id;}));pgWork();};
+
+/* ═══════════ WORKOUTS — EDITOR ═══════════ */
+var _edEx=[];
+window.openWkEdit=function(id){var all=wks()||[];var wk=id?all.find(function(w){return w.id===id;}):null;_edEx=wk?JSON.parse(JSON.stringify(wk.exercicios||[])):[];var ov=el("div","overlay");ov.innerHTML='<div class="modal modal-lg"><h3>'+(wk?IC.edit+" Editar":IC.check+" Novo")+' Treino</h3><div class="frow"><div class="frm"><label>Nome</label><input id="edN" value="'+(wk?wk.nome:"")+'"/></div><div class="frm"><label>Grupo</label><select id="edG">'+["Peito","Costas","Pernas","Ombro","Bíceps","Tríceps","Full Body","Cardio"].map(function(g){return '<option'+(wk&&wk.grupo===g?" selected":"")+'>'+g+'</option>';}).join("")+'</select></div></div><h4 style="margin:14px 0 10px;font-size:.95rem">Exercícios</h4><div id="edList"></div><button class="btn btn-s btn-sm" style="margin-top:10px" onclick="openExPicker()">+ Adicionar exercício</button><div class="fact"><button class="btn btn-s" onclick="closeModal()">Cancelar</button><button class="btn btn-g" onclick="saveWkEd('+(id||0)+')">'+IC.save+' Salvar</button></div></div>';document.body.appendChild(ov);rendEdList();};
+function rendEdList(){var c=document.getElementById("edList");if(!c)return;if(_edEx.length===0){c.innerHTML='<p style="color:var(--muted);font-size:.85rem">Nenhum exercício adicionado.</p>';return;}c.innerHTML=_edEx.map(function(e,i){var ex=EX_DB.find(function(x){return x.id===e.exId;});return '<div style="display:flex;gap:6px;align-items:center;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04);margin-bottom:5px"><span style="flex:1;font-size:.88rem;font-weight:500">'+(ex?ex.nome:"?")+'</span><input type="number" value="'+e.series+'" min="1" max="10" style="width:48px;text-align:center" onchange="_edEx['+i+'].series=+this.value"/><span style="color:var(--muted);font-size:.78rem">x</span><input type="number" value="'+e.reps+'" min="1" style="width:48px;text-align:center" onchange="_edEx['+i+'].reps=+this.value"/><input type="number" value="'+e.carga+'" min="0" style="width:55px;text-align:center" onchange="_edEx['+i+'].carga=+this.value"/><span style="color:var(--muted);font-size:.75rem">kg</span><input type="number" value="'+e.descanso+'" min="10" step="5" style="width:55px;text-align:center" onchange="_edEx['+i+'].descanso=+this.value"/><span style="color:var(--muted);font-size:.75rem">s</span><button style="color:var(--red);font-size:1rem" onclick="_edEx.splice('+i+',1);rendEdList()">✕</button></div>';}).join("");}
+window.openExPicker=function(){var ov=el("div","overlay");ov.id="exPickOv";ov.style.zIndex="600";ov.innerHTML='<div class="modal"><h3>Selecionar Exercício</h3><input class="sinp" id="exSrch" placeholder="Buscar..." oninput="filtEx()"/><div class="sres" id="exRes"></div><div class="fact"><button class="btn btn-s" onclick="document.getElementById(\'exPickOv\').remove()">Fechar</button></div></div>';document.body.appendChild(ov);filtEx();};
+window.filtEx=function(){var q=document.getElementById("exSrch").value.toLowerCase();document.getElementById("exRes").innerHTML=EX_DB.filter(function(e){return e.nome.toLowerCase().includes(q)||e.grupo.toLowerCase().includes(q);}).map(function(e){return '<div class="si" onclick="pickEx('+e.id+')"><div><strong style="font-size:.88rem">'+e.nome+'</strong><div style="color:var(--muted);font-size:.75rem">'+e.grupo+' · '+e.dificuldade+'</div></div><span class="badge bg-g">'+e.grupo+'</span></div>';}).join("");};
+window.pickEx=function(id){_edEx.push({exId:id,series:3,reps:12,carga:0,descanso:cfg().descanso||60});var p=document.getElementById("exPickOv");if(p)p.remove();rendEdList();};
+window.saveWkEd=function(editId){var nome=document.getElementById("edN").value.trim();var grupo=document.getElementById("edG").value;if(!nome){alert("Digite o nome");return;}if(_edEx.length===0){alert("Adicione exercícios");return;}var all=wks()||[];if(editId){var idx=all.findIndex(function(w){return w.id===editId;});if(idx!==-1){all[idx].nome=nome;all[idx].grupo=grupo;all[idx].exercicios=_edEx;}}else{all.push({id:Date.now(),nome:nome,grupo:grupo,exercicios:_edEx});}saveWks(all);closeModal();pgWork();};
+
+/* ═══════════ WORKOUTS — EXECUTION ═══════════ */
+var EXE=null;
+window.startWk=function(id){var all=wks()||[];var wk=all.find(function(w){return w.id===id;});if(!wk||!wk.exercicios||wk.exercicios.length===0)return;EXE={wk:JSON.parse(JSON.stringify(wk)),ci:0,cs:1,log:{},t0:Date.now(),tInt:null,tSec:0,tRun:false,vids:{}};wk.exercicios.forEach(function(_,i){EXE.log[i]=[];});rendExec();};
+function rendExec(){if(!EXE)return;var e=EXE.wk.exercicios[EXE.ci];var ex=EX_DB.find(function(x){return x.id===e.exId;});if(!ex)return;var tot=EXE.wk.exercicios.length,prg=Math.round(EXE.ci/tot*100),sLog=EXE.log[EXE.ci]||[];var rest=e.descanso||cfg().descanso||60;if(EXE.tSec===0&&!EXE.tRun)EXE.tSec=rest;var circ=C2PI*65;M.innerHTML='<div class="hdr"><div><h2>'+EXE.wk.nome+'</h2><p>Exercício '+(EXE.ci+1)+' de '+tot+'</p></div><div style="display:flex;gap:8px"><button class="btn btn-s" onclick="if(confirm(\'Voltar para lista de treinos?\')){EXE=null;pgWork();}">'+IC.chevL+' Voltar</button><button class="btn btn-r" onclick="endWk()">'+IC.stop+' Encerrar</button></div></div><div class="pbar" style="height:5px;margin-bottom:20px"><div class="f gr" style="width:'+prg+'%"></div></div><div class="exec"><div><div class="card"><h3 style="font-size:1.3rem;margin-bottom:14px">'+ex.nome+'</h3><div class="exec-img-wrap"><span class="fallback-txt">'+ex.nome+'</span><img src="'+exThumb(ex)+'" alt="'+ex.nome+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" onerror="this.style.display=\'none\'"/></div><div id="vidBox">'+(EXE.vids[EXE.ci]?'<iframe class="vid-if" src="'+ex.videoUrl+'?rel=0&modestbranding=1&playsinline=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>':'<div class="vid-ph" onclick="loadVid('+EXE.ci+',\''+ex.videoUrl+'\')"><div style="text-align:center"><div style="font-size:2rem;margin-bottom:8px">▶</div><div>Ver execução</div><div style="font-size:.75rem;color:var(--muted);margin-top:4px">Clique para carregar o vídeo</div></div></div>')+'</div><h4 style="margin:14px 0 8px;font-size:.92rem">Instruções</h4><ol class="steps">'+ex.instrucoes.map(function(inst){return '<li>'+inst+'</li>';}).join("")+'</ol><h4 style="margin:14px 0 8px;font-size:.92rem">Músculos</h4><div class="chips">'+(ex.musculosPrimarios||[ex.grupo]).map(function(m){return '<span class="ch">'+m+'</span>';}).join("")+'</div></div></div><div><div class="card" style="text-align:center;margin-bottom:16px"><h4 style="margin-bottom:12px">'+IC.clock+' Descanso</h4><div class="timer" onclick="togTimer()" style="cursor:pointer"><svg viewBox="0 0 150 150" width="150" height="150"><circle class="tbg" cx="75" cy="75" r="65"/><circle class="tfg" id="tFg" cx="75" cy="75" r="65" stroke-dasharray="'+circ+'" stroke-dashoffset="'+circ*(1-EXE.tSec/rest)+'"/></svg><div class="ttxt" id="tTxt" '+(EXE.tSec<=3&&EXE.tSec>0?'style="color:var(--red)"':'')+'>'+EXE.tSec+'s</div></div><div style="display:flex;gap:6px;justify-content:center;margin-top:8px"><button class="btn btn-sm btn-s" onclick="togTimer()">'+(EXE.tRun?IC.stop+" Pausar":IC.play+" Iniciar")+'</button><button class="btn btn-sm btn-s" onclick="rstTimer('+rest+')">Reset</button></div><div style="display:flex;gap:4px;justify-content:center;margin-top:8px">'+[30,45,60,90,120].map(function(t){return '<button class="btn btn-xs" style="'+(rest===t?'background:var(--green-soft)':'background:rgba(255,255,255,.04)')+'" onclick="rstTimer('+t+')">'+t+'s</button>';}).join("")+'</div></div><div class="card" style="margin-bottom:16px"><h4 style="margin-bottom:10px">'+IC.edit+' Série '+EXE.cs+'/'+e.series+'</h4><div class="frow"><div class="frm"><label>Carga (kg)</label><input type="number" id="xCarga" value="'+e.carga+'" min="0" step="0.5"/></div><div class="frm"><label>Reps</label><input type="number" id="xReps" value="'+e.reps+'" min="1"/></div></div><button class="btn btn-g" style="width:100%;margin-top:8px" onclick="confSerie()">'+IC.check+' Confirmar série</button></div><div class="card" style="margin-bottom:16px"><h4 style="margin-bottom:8px">Séries registradas</h4>'+(sLog.length===0?'<p style="color:var(--muted);font-size:.82rem">Nenhuma ainda.</p>':sLog.map(function(s,i){return '<div class="srow"><span style="color:var(--green)">Série '+(i+1)+'</span><span>'+s.carga+'kg × '+s.reps+'</span><span style="color:var(--muted)">'+s.carga*s.reps+'kg</span></div>';}).join(""))+'</div><div style="display:flex;gap:8px"><button class="btn btn-s" '+(EXE.ci===0?'disabled style="opacity:.4"':'')+' onclick="prevEx()">'+IC.chevL+' Anterior</button><button class="btn btn-g" style="flex:1" onclick="nextEx()">'+(EXE.ci===tot-1?IC.flag+" Finalizar":"Próximo "+IC.chevR)+'</button></div></div></div>';}
+setTimeout(function(){var imgEl=document.querySelector('.exec-img-wrap img');if(imgEl&&EXE){var e=EXE.wk.exercicios[EXE.ci];var ex=EX_DB.find(function(x){return x.id===e.exId;});if(ex)loadExGif(imgEl,ex.nome);}},50);
+window.loadVid=function(i,url){EXE.vids[i]=true;var b=document.getElementById("vidBox");if(!b)return;var watchUrl=url.replace("/embed/","/watch?v=");b.innerHTML='<iframe class="vid-if" src="'+url+'?rel=0&modestbranding=1&playsinline=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><div style="text-align:center;margin-top:6px"><a href="'+watchUrl+'" target="_blank" style="font-size:.75rem;color:var(--muted)">Abrir no YouTube ↗</a></div>';};
+function updTimerDom(rest){var fg=document.getElementById("tFg"),tx=document.getElementById("tTxt");if(!fg||!tx)return;fg.setAttribute("stroke-dashoffset",C2PI*65*(1-EXE.tSec/rest));tx.textContent=EXE.tSec+"s";tx.style.color=EXE.tSec<=3&&EXE.tSec>0?"var(--red)":"";}
+window.togTimer=function(){if(!EXE)return;var e=EXE.wk.exercicios[EXE.ci];var rest=e.descanso||cfg().descanso||60;if(EXE.tRun){clearInterval(EXE.tInt);EXE.tRun=false;}else{if(EXE.tSec<=0)EXE.tSec=rest;EXE.tRun=true;EXE.tInt=setInterval(function(){EXE.tSec--;updTimerDom(rest);if(EXE.tSec<=0){clearInterval(EXE.tInt);EXE.tRun=false;beep();}},1000);}};
+window.rstTimer=function(s){if(!EXE)return;clearInterval(EXE.tInt);EXE.tRun=false;EXE.tSec=s;updTimerDom(s);};
+window.confSerie=function(){if(!EXE)return;var carga=parseFloat(document.getElementById("xCarga").value)||0;var reps=parseInt(document.getElementById("xReps").value)||0;if(reps===0){alert("Informe as reps");return;}EXE.log[EXE.ci].push({carga:carga,reps:reps});var e=EXE.wk.exercicios[EXE.ci];var p=prs();if(!p[e.exId]||carga>p[e.exId].carga){p[e.exId]={carga:carga,data:today()};savePrs(p);addPts(75);}if(EXE.cs<e.series){EXE.cs++;var rest=e.descanso||cfg().descanso||60;rstTimer(rest);togTimer();}rendExec();};
+window.prevEx=function(){if(!EXE||EXE.ci<=0)return;clearInterval(EXE.tInt);EXE.tRun=false;EXE.ci--;EXE.cs=(EXE.log[EXE.ci]||[]).length+1;EXE.tSec=0;rendExec();};
+window.nextEx=function(){if(!EXE)return;clearInterval(EXE.tInt);EXE.tRun=false;if(EXE.ci>=EXE.wk.exercicios.length-1){endWk();return;}EXE.ci++;EXE.cs=1;EXE.tSec=0;rendExec();};
+
+/* ═══════════ WORKOUTS — SUMMARY ═══════════ */
+function endWk(){if(!EXE)return;clearInterval(EXE.tInt);var dur=Math.round((Date.now()-EXE.t0)/60000);var vol=0,exDone=0;var det=[];Object.keys(EXE.log).forEach(function(idx){var s=EXE.log[idx];if(s.length>0){exDone++;var e=EXE.wk.exercicios[idx];var ex=EX_DB.find(function(x){return x.id===e.exId;});var ev=0;s.forEach(function(r){ev+=r.carga*r.reps;vol+=r.carga*r.reps;});det.push({nome:ex?ex.nome:"?",series:s,volume:ev});}});var pts=100;addPts(pts);var rec={id:Date.now(),workoutId:EXE.wk.id,nome:EXE.wk.nome,data:new Date().toISOString(),duracao:dur,volume:vol,exerciciosFeitos:exDone,exerciciosTotal:EXE.wk.exercicios.length,pontos:pts,detalhes:det};var h=hist();h.push(rec);saveHist(h);var dias=getDiasTreinados();if(dias.indexOf(today())===-1){dias.push(today());saveDiasTreinados(dias);}EXE=null;M.innerHTML='<div style="max-width:600px;margin:0 auto"><div class="card" style="text-align:center;padding:40px 24px"><h2 style="font-size:1.8rem;margin-bottom:20px">'+IC.trophy+' Treino Concluído!</h2><div style="font-size:2.8rem;font-weight:800;color:var(--green)">'+vol.toLocaleString()+'kg</div><div style="color:var(--muted);margin-top:4px">Volume total</div></div><div class="g2" style="margin-top:16px"><div class="card" style="text-align:center"><div style="font-size:1.8rem;font-weight:800">'+IC.clock+' '+dur+'</div><div style="color:var(--muted);font-size:.82rem">minutos</div></div><div class="card" style="text-align:center"><div style="font-size:1.8rem;font-weight:800">'+IC.dumbbell+' '+exDone+'</div><div style="color:var(--muted);font-size:.82rem">exercícios</div></div><div class="card" style="text-align:center"><div style="font-size:1.8rem;font-weight:800;color:var(--green)">+'+pts+'</div><div style="color:var(--muted);font-size:.82rem">pontos</div></div><div class="card" style="text-align:center"><div style="font-size:1.8rem;font-weight:800">'+det.reduce(function(a,d){return a+d.series.length;},0)+'</div><div style="color:var(--muted);font-size:.82rem">séries</div></div></div><div class="card" style="margin-top:16px"><h4 style="margin-bottom:10px">Detalhes</h4>'+det.map(function(d){return '<div style="margin-bottom:10px"><strong style="font-size:.88rem">'+d.nome+'</strong> <span style="color:var(--muted);font-size:.78rem">'+d.volume+'kg</span>'+d.series.map(function(s,i){return '<div class="srow"><span>Série '+(i+1)+'</span><span>'+s.carga+'kg × '+s.reps+'</span></div>';}).join("")+'</div>';}).join("")+'</div><div style="text-align:center;margin-top:20px"><button class="btn btn-g" onclick="pgWork()" style="padding:14px 32px">'+IC.check+' Salvo — Voltar</button></div></div>';}
+
+/* ═══════════ WORKOUTS — HISTORY ═══════════ */
+window.pgWorkHist=function(){var h=hist().slice().reverse();M.innerHTML='<div class="hdr"><div><h2>Histórico</h2><p>'+h.length+' sessões</p></div><button class="btn btn-s" onclick="pgWork()">← Voltar</button></div><div class="g1">'+(h.length===0?'<div class="card"><p style="color:var(--muted)">Nenhum treino.</p></div>':h.map(function(r,i){return '<div class="hi" onclick="togHDet('+i+')"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>'+r.nome+'</strong><div style="color:var(--muted);font-size:.78rem;margin-top:3px">'+(r.data?fmtDate(r.data.slice(0,10)):"?")+'</div></div><div style="display:flex;gap:14px;text-align:center"><div><div style="font-weight:700">'+(r.duracao||0)+'min</div><div style="color:var(--muted);font-size:.72rem">duração</div></div><div><div style="font-weight:700;color:var(--green)">'+(r.volume||0).toLocaleString()+'kg</div><div style="color:var(--muted);font-size:.72rem">volume</div></div><div><div style="font-weight:700">+'+(r.pontos||0)+'</div><div style="color:var(--muted);font-size:.72rem">pts</div></div></div></div></div><div class="hdet" id="hd'+i+'">'+((r.detalhes||[]).map(function(d){return '<div style="margin-bottom:8px"><strong style="font-size:.85rem">'+d.nome+'</strong>'+(d.series||[]).map(function(s,si){return '<div class="srow"><span>Série '+(si+1)+'</span><span>'+s.carga+'kg × '+s.reps+'</span></div>';}).join("")+'</div>';}).join("")||"Sem detalhes")+'</div>';}).join(""))+'</div>';};
+window.togHDet=function(i){var e=document.getElementById("hd"+i);if(e)e.classList.toggle("open");};
+
+/* ═══════════════════════════════════════════════════════════════
+   DIET
+   ═══════════════════════════════════════════════════════════════ */
+var _dietDate=today();
+function pgDiet(){var c=cfg(),dl=dlog(),dd=dl[_dietDate]||{};var tC=0,tP=0,tCa=0,tG=0;MEALS.forEach(function(m){(dd[m.id]||[]).forEach(function(i){tC+=i.cal||0;tP+=i.prot||0;tCa+=i.carb||0;tG+=i.gord||0;});});var circ=C2PI*70,calP=Math.min(1,tC/c.metaCal);var dObj=new Date(_dietDate+"T12:00:00");var dStr=dObj.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});M.innerHTML='<div class="hdr"><div><h2>Dieta</h2><p>Diário alimentar</p></div><button class="btn btn-s" onclick="openNutGoals()">'+IC.target+' Metas</button></div><div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:20px"><button class="btn btn-s btn-sm" onclick="chDietDate(-1)">'+IC.chevL+'</button><div style="text-align:center"><div style="font-weight:600;font-size:.92rem">'+dStr+'</div>'+(_dietDate!==today()?'<button class="btn btn-xs btn-s" style="margin-top:4px" onclick="_dietDate=today();pgDiet()">Hoje</button>':'')+'</div><button class="btn btn-s btn-sm" onclick="chDietDate(1)">'+IC.chevR+'</button></div><div class="g2" style="margin-bottom:20px"><div class="card" style="text-align:center"><div class="ccir"><svg viewBox="0 0 170 170" width="170" height="170"><circle class="cbg" cx="85" cy="85" r="70"/><circle class="cfg" cx="85" cy="85" r="70" stroke-dasharray="'+circ+'" stroke-dashoffset="'+circ*(1-calP)+'"/></svg><div class="ctx"><div class="cn">'+Math.round(tC)+'</div><div class="cl">/ '+c.metaCal+' kcal</div></div></div></div><div class="card"><h4 style="margin-bottom:14px">Macros</h4><div style="display:grid;gap:14px"><div><div style="display:flex;justify-content:space-between;font-size:.85rem"><span style="color:var(--blue)">Proteína</span><span>'+Math.round(tP)+'g / '+c.metaProt+'g</span></div><div class="pbar"><div class="f bl" style="width:'+pct(tP,c.metaProt)+'%"></div></div></div><div><div style="display:flex;justify-content:space-between;font-size:.85rem"><span style="color:var(--yellow)">Carboidrato</span><span>'+Math.round(tCa)+'g / '+c.metaCarb+'g</span></div><div class="pbar"><div class="f yl" style="width:'+pct(tCa,c.metaCarb)+'%"></div></div></div><div><div style="display:flex;justify-content:space-between;font-size:.85rem"><span style="color:var(--red)">Gordura</span><span>'+Math.round(tG)+'g / '+c.metaGord+'g</span></div><div class="pbar"><div class="f rd" style="width:'+pct(tG,c.metaGord)+'%"></div></div></div></div></div></div>'+function(){var order=getMealOrder();var times=getMealTimes();var orderedMeals=order.map(function(id){return MEALS.find(function(m){return m.id===id;});}).filter(Boolean);return '<div id="mealsWrap">'+orderedMeals.map(function(m){var items=dd[m.id]||[];var mc=items.reduce(function(a,i){return a+(i.cal||0);},0);var timeVal=times[m.id]||"";var timeStr=timeVal?" — "+timeVal:"";return '<div class="meal-sec" draggable="true" data-meal="'+m.id+'" ondragstart="drgStart(event)" ondragover="drgOver(event)" ondrop="drgDrop(event)" ondragend="drgEnd(event)"><div class="meal-hd" onclick="togMeal(\''+m.id+'\')"><div style="display:flex;align-items:center;gap:8px"><span class="drag-handle" onclick="event.stopPropagation()">'+IC.grip+'</span><span style="display:inline-flex">'+m.icon+'</span><span style="font-weight:600;font-size:.9rem">'+m.nome+timeStr+'</span><span class="badge bg-g">'+items.length+'</span></div><div style="display:flex;align-items:center;gap:10px">'+genTimeDrop(m.id,timeVal)+'<span style="color:var(--muted);font-size:.82rem">'+Math.round(mc)+' kcal</span><button class="btn btn-g btn-xs" onclick="event.stopPropagation();openAddFood(\''+m.id+'\',\''+m.nome+'\')">+</button></div></div><div class="meal-bd" id="ml_'+m.id+'">'+(items.length===0?'<p style="color:var(--muted);font-size:.82rem;padding:6px 0">Nenhum alimento.</p>':items.map(function(it,idx){return '<div class="food-row"><div><div style="font-size:.88rem">'+it.nome+'</div><div style="color:var(--muted);font-size:.75rem">'+it.qtd+'g · P:'+Math.round(it.prot)+'g C:'+Math.round(it.carb)+'g G:'+Math.round(it.gord)+'g</div></div><div style="display:flex;align-items:center;gap:10px"><span style="font-weight:600;color:var(--green);font-size:.88rem">'+Math.round(it.cal)+' kcal</span><button style="color:var(--red);font-size:.9rem" onclick="rmFood(\''+_dietDate+'\',\''+m.id+'\','+idx+')">✕</button></div></div>';}).join(""))+'</div></div>';}).join("")+'</div>';}();}
+window.chDietDate=function(d){var dt=new Date(_dietDate+"T12:00:00");dt.setDate(dt.getDate()+d);_dietDate=dt.toISOString().slice(0,10);pgDiet();};
+window.togMeal=function(id){var e=document.getElementById("ml_"+id);if(e)e.classList.toggle("open");};
+window.rmFood=function(date,mid,idx){var dl=dlog();if(dl[date]&&dl[date][mid]){dl[date][mid].splice(idx,1);saveDlog(dl);pgDiet();}};
+/* Drag & Drop meals */
+var _dragMealId=null;
+window.drgStart=function(e){_dragMealId=e.currentTarget.dataset.meal;e.currentTarget.classList.add("dragging");e.dataTransfer.effectAllowed="move";};
+window.drgOver=function(e){e.preventDefault();e.dataTransfer.dropEffect="move";var t=e.currentTarget;if(t.dataset.meal!==_dragMealId)t.classList.add("drag-over");};
+window.drgDrop=function(e){e.preventDefault();var target=e.currentTarget;target.classList.remove("drag-over");var targetId=target.dataset.meal;if(!_dragMealId||_dragMealId===targetId)return;var order=getMealOrder();var fromIdx=order.indexOf(_dragMealId);var toIdx=order.indexOf(targetId);if(fromIdx===-1||toIdx===-1)return;order.splice(fromIdx,1);order.splice(toIdx,0,_dragMealId);saveMealOrder(order);pgDiet();};
+window.drgEnd=function(e){_dragMealId=null;document.querySelectorAll(".meal-sec").forEach(function(el){el.classList.remove("dragging","drag-over");});};
+window.setMealTime=function(mealId,val){var t=getMealTimes();t[mealId]=val;saveMealTimes(t);pgDiet();};
+var _selFood=null;
+window.openAddFood=function(mealId,mealName){_selFood=null;var refMap={cafe:"c",pre:"p",almoco:"a",tarde:"t",jantar:"j",ceia:"s"};_curMealRef=refMap[mealId]||"";var ov=el("div","overlay");ov.id="addFoodOv";ov.innerHTML='<div class="modal"><h3>Adicionar — '+mealName+'</h3><input class="sinp" id="fdSrch" placeholder="Buscar alimento..." oninput="filtFd()"/><div class="sres" id="fdRes" style="max-height:220px"></div><div id="fdQty" style="display:none;margin-top:14px;padding:14px;border-radius:12px;background:rgba(255,255,255,.04)"><div style="font-weight:600;margin-bottom:6px" id="fdName"></div><div class="frm"><label>Quantidade (g/ml)</label><input type="number" id="fdAmt" value="100" min="1" oninput="calcFd()"/></div><div id="fdPreview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:.8rem;text-align:center"></div><button class="btn btn-g" style="width:100%;margin-top:10px" onclick="confFood(\''+mealId+'\')">'+IC.check+' Confirmar</button></div><div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px"><button class="btn btn-s btn-sm" onclick="showCustFood(\''+mealId+'\')">'+IC.edit+' Cadastrar manual</button></div><div id="custFdBox" style="display:none;margin-top:10px"></div><div class="fact"><button class="btn btn-s" onclick="closeModal()">Fechar</button></div></div>';document.body.appendChild(ov);filtFd();};
+var _curMealRef="";
+window.filtFd=function(){var q=document.getElementById("fdSrch").value.toLowerCase();var af=FOODS_DB.concat(cfoods());var filtered=af.filter(function(f){var matchQ=!q||f.nome.toLowerCase().includes(q);var matchRef=!_curMealRef||!f.ref||f.ref.includes(_curMealRef);return matchQ&&matchRef;});document.getElementById("fdRes").innerHTML=filtered.length===0?'<p style="color:var(--muted);padding:12px;font-size:.85rem">Nenhum alimento encontrado.</p>':filtered.map(function(f){return '<div class="si" onclick="selFd('+f.id+','+f.cal+','+f.prot+','+f.carb+','+f.gord+',\''+f.nome.replace(/'/g,"\\'")+"')\">"+'<div><strong style="font-size:.85rem">'+f.nome+'</strong><div style="color:var(--muted);font-size:.72rem">'+f.cal+'cal P:'+f.prot+'g C:'+f.carb+'g G:'+f.gord+'g /100g</div></div></div>';}).join("");};
+window.selFd=function(id,cal,prot,carb,gord,nome){_selFood={id:id,cal:cal,prot:prot,carb:carb,gord:gord,nome:nome};document.getElementById("fdQty").style.display="block";document.getElementById("fdName").textContent=nome;document.getElementById("fdAmt").value=100;calcFd();};
+window.calcFd=function(){if(!_selFood)return;var q=parseFloat(document.getElementById("fdAmt").value)||0;var m=q/100,f=_selFood;document.getElementById("fdPreview").innerHTML='<div style="padding:6px;border-radius:8px;background:rgba(34,197,94,.08)"><strong>'+Math.round(f.cal*m)+'</strong><br>kcal</div><div style="padding:6px;border-radius:8px;background:rgba(59,130,246,.08)"><strong>'+(f.prot*m).toFixed(1)+'</strong><br>prot</div><div style="padding:6px;border-radius:8px;background:rgba(250,204,21,.08)"><strong>'+(f.carb*m).toFixed(1)+'</strong><br>carb</div><div style="padding:6px;border-radius:8px;background:rgba(239,68,68,.08)"><strong>'+(f.gord*m).toFixed(1)+'</strong><br>gord</div>';};
+window.confFood=function(mealId){if(!_selFood)return;var q=parseFloat(document.getElementById("fdAmt").value)||0;if(q<=0){alert("Informe a quantidade");return;}var m=q/100,f=_selFood;var dl=dlog();if(!dl[_dietDate])dl[_dietDate]={};if(!dl[_dietDate][mealId])dl[_dietDate][mealId]=[];dl[_dietDate][mealId].push({nome:f.nome,qtd:q,cal:f.cal*m,prot:f.prot*m,carb:f.carb*m,gord:f.gord*m});saveDlog(dl);var dayMeals=MEALS.filter(function(ml){return dl[_dietDate][ml.id]&&dl[_dietDate][ml.id].length>0;}).length;if(dayMeals===1)addPts(50);var dayCal=0;MEALS.forEach(function(ml){(dl[_dietDate][ml.id]||[]).forEach(function(it){dayCal+=it.cal||0;});});var c=cfg();if(dayCal>=c.metaCal*0.9&&dayCal<=c.metaCal*1.1){if(!S.get("calGoal_"+_dietDate,false)){addPts(30);S.set("calGoal_"+_dietDate,true);}}closeModal();pgDiet();};
+window.showCustFood=function(mealId){var b=document.getElementById("custFdBox");b.style.display="block";b.innerHTML='<div class="frm"><label>Nome</label><input id="cfN" placeholder="Nome do alimento"/></div><div class="frow"><div class="frm"><label>Cal /100g</label><input type="number" id="cfC" value="0"/></div><div class="frm"><label>Prot /100g</label><input type="number" id="cfP" value="0" step="0.1"/></div></div><div class="frow"><div class="frm"><label>Carb /100g</label><input type="number" id="cfCa" value="0" step="0.1"/></div><div class="frm"><label>Gord /100g</label><input type="number" id="cfG" value="0" step="0.1"/></div></div><button class="btn btn-g btn-sm" onclick="saveCustFd(\''+mealId+'\')">Salvar</button>';};
+window.saveCustFd=function(mealId){var n=document.getElementById("cfN").value.trim();if(!n){alert("Nome!");return;}var fd={id:Date.now(),nome:n,cal:parseFloat(document.getElementById("cfC").value)||0,prot:parseFloat(document.getElementById("cfP").value)||0,carb:parseFloat(document.getElementById("cfCa").value)||0,gord:parseFloat(document.getElementById("cfG").value)||0};var cf=cfoods();cf.push(fd);saveCfoods(cf);selFd(fd.id,fd.cal,fd.prot,fd.carb,fd.gord,fd.nome);document.getElementById("custFdBox").style.display="none";filtFd();};
+window.openNutGoals=function(){var c=cfg();var ov=el("div","overlay");ov.innerHTML='<div class="modal"><h3>'+IC.target+' Metas Nutricionais</h3><div class="frm"><label>Objetivo</label><select id="ngObj"><option'+(c.objetivo==="Perda de gordura"?" selected":"")+'>Perda de gordura</option><option'+(c.objetivo==="Manutenção"?" selected":"")+'>Manutenção</option><option'+(c.objetivo==="Ganho de massa"||c.objetivo==="Hipertrofia"?" selected":"")+'>Ganho de massa</option></select></div><div class="frow"><div class="frm"><label>Calorias</label><input type="number" id="ngC" value="'+c.metaCal+'"/></div><div class="frm"><label>Proteína (g)</label><input type="number" id="ngP" value="'+c.metaProt+'"/></div></div><div class="frow"><div class="frm"><label>Carboidrato (g)</label><input type="number" id="ngCa" value="'+c.metaCarb+'"/></div><div class="frm"><label>Gordura (g)</label><input type="number" id="ngG" value="'+c.metaGord+'"/></div></div><div class="fact"><button class="btn btn-s" onclick="closeModal()">Cancelar</button><button class="btn btn-g" onclick="saveNutGoals()">'+IC.save+' Salvar</button></div></div>';document.body.appendChild(ov);};
+window.saveNutGoals=function(){var c=cfg();c.objetivo=document.getElementById("ngObj").value;c.metaCal=parseInt(document.getElementById("ngC").value)||2200;c.metaProt=parseInt(document.getElementById("ngP").value)||180;c.metaCarb=parseInt(document.getElementById("ngCa").value)||220;c.metaGord=parseInt(document.getElementById("ngG").value)||65;saveCfg(c);closeModal();pgDiet();};
+
+/* ═══════════════════════════════════════════════════════════════
+   PROGRESS
+   ═══════════════════════════════════════════════════════════════ */
+function pgProg(){var c=cfg(),wl=wlog(),h=hist(),p=prs();M.innerHTML='<div class="hdr"><div><h2>Progresso</h2><p>Evolução completa</p></div></div><div class="g2"><div class="card"><h4 style="margin-bottom:14px">'+IC.scale+' Peso Corporal</h4><div style="display:flex;gap:8px;margin-bottom:14px"><input type="number" id="wIn" placeholder="Peso (kg)" step="0.1" style="flex:1" value="'+(c.peso||"")+'"/><button class="btn btn-g btn-sm" onclick="regWeight()">Registrar</button></div><canvas id="wChart" style="width:100%;height:240px"></canvas></div><div class="card"><h4 style="margin-bottom:14px">'+IC.chart+' Volume Semanal</h4><canvas id="vChart" style="width:100%;height:240px"></canvas></div></div><div class="card" style="margin-top:20px"><h4 style="margin-bottom:14px">'+IC.medal+' Recordes Pessoais</h4><div class="g3">'+(Object.keys(p).length===0?'<p style="color:var(--muted);grid-column:span 3">Complete treinos para registrar PRs.</p>':Object.entries(p).map(function(entry){var eid=entry[0],pr=entry[1];var ex=EX_DB.find(function(x){return x.id===parseInt(eid);});return '<div class="stat"><div class="lbl">'+(ex?ex.grupo:"")+'</div><div style="font-weight:600;margin-bottom:3px">'+(ex?ex.nome:"?")+'</div><div class="val" style="color:var(--green)">'+pr.carga+'kg</div><div style="color:var(--muted);font-size:.75rem;margin-top:3px">'+(pr.data?fmtDate(pr.data):"")+'</div></div>';}).join(""))+'</div></div><div class="g2" style="margin-top:20px"><div class="card"><h4 style="margin-bottom:14px">'+IC.calendar+' Consistência</h4><div id="calBox"></div></div><div class="card"><h4 style="margin-bottom:14px">'+IC.trending+' Comparativo</h4><div id="cmpBox"></div></div></div>';setTimeout(function(){drawWChart(wl);drawVChart(h);rendCal(h);rendCmp(h);},50);}
+window.regWeight=function(){var v=parseFloat(document.getElementById("wIn").value);if(!v||v<20||v>300){alert("Peso inválido");return;}var wl=wlog(),td=today();var ei=wl.findIndex(function(w){return w.d===td;});if(ei!==-1)wl[ei].v=v;else wl.push({d:td,v:v});saveWlog(wl);var c=cfg();c.peso=v;saveCfg(c);pgProg();};
+function drawWChart(wl){var cv=document.getElementById("wChart");if(!cv)return;var ctx=cv.getContext("2d"),dpr=window.devicePixelRatio||1;cv.width=cv.offsetWidth*dpr;cv.height=240*dpr;ctx.scale(dpr,dpr);var W=cv.offsetWidth,H=240;var days=[];for(var i=13;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);var ds=d.toISOString().slice(0,10);var e=wl.find(function(w){return w.d===ds;});days.push({d:ds,v:e?e.v:null,lb:d.getDate()+"/"+(d.getMonth()+1)});}var valid=days.filter(function(d){return d.v!==null;});if(valid.length===0){ctx.fillStyle="#9CC7A4";ctx.font="14px Inter";ctx.textAlign="center";ctx.fillText("Registre seu peso para ver o gráfico",W/2,H/2);return;}var mn=Math.min.apply(null,valid.map(function(d){return d.v;}))-2;var mx=Math.max.apply(null,valid.map(function(d){return d.v;}))+2;var rng=mx-mn||1;var pL=48,pR=16,pT=16,pB=34,cW=W-pL-pR,cH=H-pT-pB;ctx.strokeStyle="rgba(255,255,255,.06)";ctx.lineWidth=1;for(var g=0;g<=4;g++){var y=pT+cH/4*g;ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();ctx.fillStyle="#9CC7A4";ctx.font="10px Inter";ctx.textAlign="right";ctx.fillText((mx-rng/4*g).toFixed(1),pL-6,y+4);}ctx.textAlign="center";ctx.fillStyle="#9CC7A4";ctx.font="10px Inter";days.forEach(function(d,i){if(i%2===0)ctx.fillText(d.lb,pL+cW/13*i,H-6);});ctx.strokeStyle="#22C55E";ctx.lineWidth=2.5;ctx.lineJoin="round";ctx.beginPath();var st=false;days.forEach(function(d,i){if(d.v===null)return;var x=pL+cW/13*i,y=pT+cH-((d.v-mn)/rng)*cH;if(!st){ctx.moveTo(x,y);st=true;}else ctx.lineTo(x,y);});ctx.stroke();days.forEach(function(d,i){if(d.v===null)return;var x=pL+cW/13*i,y=pT+cH-((d.v-mn)/rng)*cH;ctx.fillStyle="#22C55E";ctx.beginPath();ctx.arc(x,y,4,0,C2PI);ctx.fill();ctx.fillStyle="#070E0A";ctx.beginPath();ctx.arc(x,y,2,0,C2PI);ctx.fill();});}
+function drawVChart(h){var cv=document.getElementById("vChart");if(!cv)return;var ctx=cv.getContext("2d"),dpr=window.devicePixelRatio||1;cv.width=cv.offsetWidth*dpr;cv.height=240*dpr;ctx.scale(dpr,dpr);var W=cv.offsetWidth,H=240;var weeks=[];for(var w=3;w>=0;w--){var end=new Date();end.setDate(end.getDate()-w*7);var start=new Date(end);start.setDate(start.getDate()-6);var sS=start.toISOString().slice(0,10),eS=end.toISOString().slice(0,10);var vol=0;h.forEach(function(r){var d=r.data?r.data.slice(0,10):"";if(d>=sS&&d<=eS)vol+=r.volume||0;});weeks.push({lb:"Sem "+(4-w),v:vol});}var mx=Math.max.apply(null,weeks.map(function(w){return w.v;}).concat([1]));var pL=55,pR=16,pT=16,pB=34,cW=W-pL-pR,cH=H-pT-pB,bW=cW/4*0.6;ctx.strokeStyle="rgba(255,255,255,.06)";ctx.lineWidth=1;for(var g=0;g<=4;g++){var y=pT+cH/4*g;ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();ctx.fillStyle="#9CC7A4";ctx.font="10px Inter";ctx.textAlign="right";ctx.fillText(Math.round(mx-mx/4*g).toLocaleString()+"kg",pL-6,y+4);}weeks.forEach(function(w,i){var x=pL+cW/4*i+(cW/4-bW)/2;var bH=(w.v/mx)*cH,y=pT+cH-bH;var gd=ctx.createLinearGradient(x,y,x,pT+cH);gd.addColorStop(0,"#22C55E");gd.addColorStop(1,"#16A34A");ctx.fillStyle=gd;ctx.beginPath();var r=5;ctx.moveTo(x+r,y);ctx.lineTo(x+bW-r,y);ctx.quadraticCurveTo(x+bW,y,x+bW,y+r);ctx.lineTo(x+bW,pT+cH);ctx.lineTo(x,pT+cH);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.fill();if(w.v>0){ctx.fillStyle="#E9F7EF";ctx.font="10px Inter";ctx.textAlign="center";ctx.fillText(w.v.toLocaleString()+"kg",x+bW/2,y-6);}ctx.fillStyle="#9CC7A4";ctx.font="10px Inter";ctx.fillText(w.lb,x+bW/2,H-6);});}
+function rendCal(h){var box=document.getElementById("calBox");if(!box)return;var now=new Date(),y=now.getFullYear(),mo=now.getMonth();var f=new Date(y,mo,1),l=new Date(y,mo+1,0);var dow=f.getDay();
+var manualDays=getDiasTreinados();var trained={};
+h.forEach(function(r){if(r.data){var d=new Date(r.data);if(d.getMonth()===mo&&d.getFullYear()===y)trained[d.getDate()]=true;}});
+manualDays.forEach(function(ds){var d=new Date(ds+"T12:00:00");if(d.getMonth()===mo&&d.getFullYear()===y)trained[d.getDate()]=true;});
+var mN=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];var htm='<h5 style="text-align:center;margin-bottom:10px">'+mN[mo]+' '+y+'</h5><div class="calgrid">';["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"].forEach(function(d){htm+='<div class="ch">'+d+'</div>';});for(var i=0;i<dow;i++)htm+='<div class="cd empty"></div>';var tc=0;for(var d=1;d<=l.getDate();d++){var isTod=d===now.getDate();var isT=!!trained[d];if(isT)tc++;var dateStr=y+"-"+String(mo+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");var isFut=new Date(dateStr+"T23:59:59")>now&&d>now.getDate();htm+='<div class="cd clk'+(isT?" tr":"")+(isTod?" tod":"")+(isFut?" fut":"")+'" onclick="'+(isFut?"":"togCalDay(\'"+dateStr+"\')")+'" style="'+(isFut?"cursor:not-allowed;opacity:.4":"cursor:pointer")+'">'+(isT?IC.check:d)+'</div>';}htm+='</div><div id="calCount" style="margin-top:10px;text-align:center;color:var(--muted);font-size:.78rem">'+tc+' dias treinados</div>';box.innerHTML=htm;}
+window.togCalDay=function(dateStr){var days=getDiasTreinados();var idx=days.indexOf(dateStr);if(idx!==-1){days.splice(idx,1);}else{days.push(dateStr);}saveDiasTreinados(days);rendCal(hist());};
+function rendCmp(h){var box=document.getElementById("cmpBox");if(!box)return;var now=new Date(),cwS=new Date(now);cwS.setDate(now.getDate()-now.getDay());cwS.setHours(0,0,0,0);var cwE=new Date(cwS);cwE.setDate(cwE.getDate()+6);var pwS=new Date(cwS);pwS.setDate(pwS.getDate()-7);var pwE=new Date(cwS);pwE.setDate(pwE.getDate()-1);var cW=0,cV=0,pW=0,pV=0;h.forEach(function(r){var d=new Date(r.data);if(d>=cwS&&d<=cwE){cW++;cV+=r.volume||0;}if(d>=pwS&&d<=pwE){pW++;pV+=r.volume||0;}});var dl=dlog();var cCT=0,cCD=0,pCT=0,pCD=0;Object.entries(dl).forEach(function(entry){var dt=entry[0],meals=entry[1];var d=new Date(dt+"T12:00:00");var dc=0;Object.values(meals).forEach(function(a){if(a)a.forEach(function(i){dc+=i.cal||0;});});if(dc>0){if(d>=cwS&&d<=cwE){cCT+=dc;cCD++;}if(d>=pwS&&d<=pwE){pCT+=dc;pCD++;}}});var cCA=cCD>0?Math.round(cCT/cCD):0,pCA=pCD>0?Math.round(pCT/pCD):0;function arr(a,b){return a>b?'<span style="color:var(--green)">↑</span>':a<b?'<span style="color:var(--red)">↓</span>':'<span style="color:var(--muted)">→</span>';}box.innerHTML='<div style="display:grid;gap:10px"><div style="display:flex;justify-content:space-between;padding:12px;border-radius:12px;background:rgba(255,255,255,.04)"><span>'+IC.dumbbell+' Treinos</span><span>'+cW+' vs '+pW+' '+arr(cW,pW)+'</span></div><div style="display:flex;justify-content:space-between;padding:12px;border-radius:12px;background:rgba(255,255,255,.04)"><span>'+IC.chart+' Volume</span><span>'+cV.toLocaleString()+'kg vs '+pV.toLocaleString()+'kg '+arr(cV,pV)+'</span></div><div style="display:flex;justify-content:space-between;padding:12px;border-radius:12px;background:rgba(255,255,255,.04)"><span>'+IC.flame+' Cal. média</span><span>'+cCA.toLocaleString()+' vs '+pCA.toLocaleString()+' '+arr(cCA,pCA)+'</span></div></div><div style="margin-top:12px;text-align:center;font-size:.78rem;color:var(--muted)">Semana atual vs anterior</div>';}
+
+/* ═══════════════════════════════════════════════════════════════
+   SETTINGS
+   ═══════════════════════════════════════════════════════════════ */
+function pgSet(){var c=cfg();var imc=c.peso&&c.altura?(c.peso/Math.pow(c.altura/100,2)).toFixed(1):"—";var iv=parseFloat(imc);var ic="",il="";if(iv<18.5){ic="bg-y";il="Abaixo";}else if(iv<25){ic="bg-g";il="Normal";}else if(iv<30){ic="bg-y";il="Sobrepeso";}else{ic="bg-r";il="Obesidade";}M.innerHTML='<div class="hdr"><div><h2>Configurações</h2><p>Perfil e preferências</p></div></div><div class="g2"><div class="card"><h4 style="margin-bottom:18px">'+IC.user+' Perfil</h4><div class="frm"><label>Nome</label><input id="sN" value="'+c.nome+'"/></div><div class="frm"><label>Objetivo</label><select id="sObj"><option'+(c.objetivo==="Emagrecer"||c.objetivo==="Perda de gordura"?" selected":"")+'>Emagrecer</option><option'+(c.objetivo==="Manutenção"?" selected":"")+'>Manutenção</option><option'+(c.objetivo==="Hipertrofia"||c.objetivo==="Ganho de massa"?" selected":"")+'>Hipertrofia</option></select></div><div class="frow"><div class="frm"><label>Peso (kg)</label><input type="number" id="sP" value="'+c.peso+'" step="0.1"/></div><div class="frm"><label>Altura (cm)</label><input type="number" id="sA" value="'+c.altura+'"/></div></div><div style="padding:12px;border-radius:12px;background:rgba(255,255,255,.04);display:flex;align-items:center;gap:10px;margin-top:6px"><span style="font-size:.85rem">IMC:</span><strong style="font-size:1.15rem">'+imc+'</strong><span class="badge '+ic+'">'+il+'</span></div></div><div class="card"><h4 style="margin-bottom:18px">'+IC.gear+' Treino</h4><div class="frm"><label>Meta treinos/semana</label><select id="sMT">'+[1,2,3,4,5,6,7].map(function(n){return '<option'+(c.metaTreinos===n?" selected":"")+'>'+n+'</option>';}).join("")+'</select></div><div class="frm"><label>Descanso padrão</label><select id="sD">'+[30,45,60,90,120].map(function(n){return '<option value="'+n+'"'+(c.descanso===n?" selected":"")+'>'+n+'s</option>';}).join("")+'</select></div><h4 style="margin:20px 0 14px">'+IC.utensils+' Metas Nutricionais</h4><div class="frow"><div class="frm"><label>Calorias</label><input type="number" id="sCal" value="'+c.metaCal+'"/></div><div class="frm"><label>Proteína (g)</label><input type="number" id="sPr" value="'+c.metaProt+'"/></div></div><div class="frow"><div class="frm"><label>Carboidrato (g)</label><input type="number" id="sCa" value="'+c.metaCarb+'"/></div><div class="frm"><label>Gordura (g)</label><input type="number" id="sGo" value="'+c.metaGord+'"/></div></div></div></div><div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap"><button class="btn btn-g" onclick="saveSets()">'+IC.save+' Salvar configurações</button><button class="btn btn-s" onclick="exportData()">'+IC.download+' Exportar dados (JSON)</button><button class="btn btn-r" onclick="resetAll()">'+IC.trash+' Resetar todos os dados</button></div>';}
+window.saveSets=function(){saveCfg({nome:document.getElementById("sN").value.trim()||"Atleta",objetivo:document.getElementById("sObj").value,peso:parseFloat(document.getElementById("sP").value)||75,altura:parseFloat(document.getElementById("sA").value)||175,metaTreinos:parseInt(document.getElementById("sMT").value)||4,descanso:parseInt(document.getElementById("sD").value)||60,metaCal:parseInt(document.getElementById("sCal").value)||2200,metaProt:parseInt(document.getElementById("sPr").value)||180,metaCarb:parseInt(document.getElementById("sCa").value)||220,metaGord:parseInt(document.getElementById("sGo").value)||65});alert("Configurações salvas!");pgSet();};
+window.exportData=function(){var data={settings:cfg(),workouts:wks(),history:hist(),dietLog:dlog(),weightLog:wlog(),score:score(),prs:prs(),customFoods:cfoods(),exportDate:new Date().toISOString()};var blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="gymtrack-backup-"+today()+".json";a.click();URL.revokeObjectURL(url);};
+window.resetAll=function(){if(!confirm("TODOS os dados serão apagados. Confirmar?"))return;if(!confirm("Última chance!"))return;Object.keys(localStorage).forEach(function(k){if(k.startsWith("gt_"))localStorage.removeItem(k);});initDefaults();updScore();pgSet();alert("Dados resetados.");};
+
+/* ═══════════ STREAK BONUS ═══════════ */
+(function(){var h=hist(),dl=dlog();var streak=0;for(var i=0;i<365;i++){var d=new Date();d.setDate(d.getDate()-i);var ds=d.toISOString().slice(0,10);if(h.some(function(x){return x.data&&x.data.slice(0,10)===ds;})||(dl[ds]&&Object.values(dl[ds]).some(function(a){return a&&a.length>0;})))streak++;else break;}var last=S.get("streakBonus",0);if(streak>=7&&Math.floor(streak/7)>last){addPts(200);S.set("streakBonus",Math.floor(streak/7));}})();
+
+/* ═══════════ INIT ═══════════ */
+go(location.hash||"#dashboard");
+</script>
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js");
+  }
+</script>
+</body>
+</html>
