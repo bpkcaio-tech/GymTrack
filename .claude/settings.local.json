@@ -6,7 +6,16 @@
       "Bash(powershell -ExecutionPolicy Bypass -File \"D:/Plataforma de treino/download_imgs.ps1\")",
       "Bash(python download_imgs.py)",
       "Bash(python -c ':*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(dir /s /b \"C:\\\\Users\\\\caioe\\\\Downloads\\\\Logo_futurista*\")",
+      "Bash(dir /s /b \"C:\\\\Users\\\\caioe\\\\Desktop\\\\Logo_futurista*\")",
+      "Bash(dir /s /b \"C:\\\\Users\\\\caioe\\\\Pictures\\\\Logo_futurista*\")",
+      "Bash(dir /s /b \"C:\\\\Users\\\\caioe\\\\Documents\\\\Logo_futurista*\")",
+      "Read(//c/Users/caioe/Downloads/**)",
+      "Read(//c/Users/caioe/**)",
+      "Read(//d//**)",
+      "Bash(ls /c/Users/caioe/Downloads/*.png)",
+      "Bash(ls /c/Users/caioe/Desktop/*.png)"
     ]
   }
 }
