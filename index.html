@@ -869,9 +869,147 @@ window.delWk=function(id){if(!confirm("Excluir?"))return;saveWks((wks()||[]).fil
 var _edEx=[];
 window.openWkEdit=function(id){var all=wks()||[];var wk=id?all.find(function(w){return w.id===id;}):null;_edEx=wk?JSON.parse(JSON.stringify(wk.exercicios||[])):[];var ov=el("div","overlay");ov.innerHTML='<div class="modal modal-lg"><h3>'+(wk?IC.edit+" Editar":IC.check+" Novo")+' Treino</h3><div class="frow"><div class="frm"><label>Nome</label><input id="edN" value="'+(wk?wk.nome:"")+'"/></div><div class="frm"><label>Grupo</label><select id="edG">'+["Peito","Costas","Pernas","Ombro","Bíceps","Tríceps","Full Body","Cardio"].map(function(g){return '<option'+(wk&&wk.grupo===g?" selected":"")+'>'+g+'</option>';}).join("")+'</select></div></div><h4 style="margin:14px 0 10px;font-size:.95rem">Exercícios</h4><div id="edList"></div><button class="btn btn-s btn-sm" style="margin-top:10px" onclick="openExPicker()">+ Adicionar exercício</button><div class="fact"><button class="btn btn-s" onclick="closeModal()">Cancelar</button><button class="btn btn-g" onclick="saveWkEd('+(id||0)+')">'+IC.save+' Salvar</button></div></div>';document.body.appendChild(ov);rendEdList();};
 function rendEdList(){var c=document.getElementById("edList");if(!c)return;if(_edEx.length===0){c.innerHTML='<p style="color:var(--muted);font-size:.85rem">Nenhum exercício adicionado.</p>';return;}c.innerHTML=_edEx.map(function(e,i){var ex=EX_DB.find(function(x){return x.id===e.exId;});return '<div style="display:flex;gap:6px;align-items:center;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04);margin-bottom:5px"><span style="flex:1;font-size:.88rem;font-weight:500">'+(ex?ex.nome:"?")+'</span><input type="number" value="'+e.series+'" min="1" max="10" style="width:48px;text-align:center" onchange="_edEx['+i+'].series=+this.value"/><span style="color:var(--muted);font-size:.78rem">x</span><input type="number" value="'+e.reps+'" min="1" style="width:48px;text-align:center" onchange="_edEx['+i+'].reps=+this.value"/><input type="number" value="'+e.carga+'" min="0" style="width:55px;text-align:center" onchange="_edEx['+i+'].carga=+this.value"/><span style="color:var(--muted);font-size:.75rem">kg</span><input type="number" value="'+e.descanso+'" min="10" step="5" style="width:55px;text-align:center" onchange="_edEx['+i+'].descanso=+this.value"/><span style="color:var(--muted);font-size:.75rem">s</span><button style="color:var(--red);font-size:1rem" onclick="_edEx.splice('+i+',1);rendEdList()">✕</button></div>';}).join("");}
-window.openExPicker=function(){var ov=el("div","overlay");ov.id="exPickOv";ov.style.zIndex="600";ov.innerHTML='<div class="modal"><h3>Selecionar Exercício</h3><input class="sinp" id="exSrch" placeholder="Buscar..." oninput="filtEx()"/><div class="sres" id="exRes"></div><div class="fact"><button class="btn btn-s" onclick="document.getElementById(\'exPickOv\').remove()">Fechar</button></div></div>';document.body.appendChild(ov);filtEx();};
-window.filtEx=function(){var q=document.getElementById("exSrch").value.toLowerCase();document.getElementById("exRes").innerHTML=EX_DB.filter(function(e){return e.nome.toLowerCase().includes(q)||e.grupo.toLowerCase().includes(q);}).map(function(e){return '<div class="si" onclick="pickEx('+e.id+')"><div><strong style="font-size:.88rem">'+e.nome+'</strong><div style="color:var(--muted);font-size:.75rem">'+e.grupo+' · '+e.dificuldade+'</div></div><span class="badge bg-g">'+e.grupo+'</span></div>';}).join("");};
-window.pickEx=function(id){_edEx.push({exId:id,series:3,reps:12,carga:0,descanso:cfg().descanso||60});var p=document.getElementById("exPickOv");if(p)p.remove();rendEdList();};
+window.openExPicker=function(){
+  var ov=el("div","overlay");
+  ov.id="exPickOv";
+  ov.style.zIndex="600";
+  ov.innerHTML='<div class="modal"><h3>Selecionar Exercício</h3>'+
+  '<div style="display:flex;gap:8px;margin-bottom:14px">'+
+    '<button id="tabBusca" class="btn btn-g btn-sm" onclick="showExTab(\'busca\')">🔍 Biblioteca</button>'+
+    '<button id="tabCustom" class="btn btn-s btn-sm" onclick="showExTab(\'custom\')">✏️ Personalizado</button>'+
+  '</div>'+
+  '<div id="tabBuscaContent">'+
+    '<input class="sinp" id="exSrch" placeholder="Buscar exercício..." oninput="filtEx()"/>'+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0" id="exGrupoFilters"></div>'+
+    '<div class="sres" id="exRes" style="max-height:300px"></div>'+
+  '</div>'+
+  '<div id="tabCustomContent" style="display:none">'+
+    '<div class="frm"><label>Nome do exercício</label><input id="cexN" placeholder="Ex: Remada Cavalinho"/></div>'+
+    '<div class="frow">'+
+      '<div class="frm"><label>Grupo muscular</label>'+
+        '<select id="cexG">'+
+          '<option>Peito</option><option>Costas</option><option>Pernas</option>'+
+          '<option>Ombro</option><option>Bíceps</option><option>Tríceps</option>'+
+          '<option>Abdômen</option><option>Funcional</option><option>Cardio</option><option>Outro</option>'+
+        '</select>'+
+      '</div>'+
+      '<div class="frm"><label>Nível</label>'+
+        '<select id="cexD"><option>Iniciante</option><option>Intermediário</option><option>Avançado</option></select>'+
+      '</div>'+
+    '</div>'+
+    '<div class="frm"><label>Equipamento</label><input id="cexE" placeholder="Ex: Máquina, Haltere, Cabo..."/></div>'+
+    '<div class="frm"><label>Instruções (opcional)</label><input id="cexI" placeholder="Ex: Sente no banco, puxe as alças..."/></div>'+
+    '<div class="frm"><label>URL do vídeo YouTube (opcional)</label><input id="cexV" placeholder="https://youtube.com/embed/..."/></div>'+
+    '<button class="btn btn-g" style="width:100%;margin-top:6px" onclick="saveCustomEx()">+ Adicionar ao Treino</button>'+
+    '<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px">'+
+      '<h4 style="font-size:.85rem;margin-bottom:8px;color:var(--muted)">Meus exercícios personalizados</h4>'+
+      '<div id="myCustomExList"></div>'+
+    '</div>'+
+  '</div>'+
+  '<div class="fact"><button class="btn btn-s" onclick="document.getElementById(\'exPickOv\').remove()">Fechar</button></div>'+
+  '</div>';
+  document.body.appendChild(ov);
+  var grupos=["Todos","Peito","Costas","Pernas","Ombro","Bíceps","Tríceps","Abdômen","Funcional","Cardio","Mobilidade"];
+  document.getElementById("exGrupoFilters").innerHTML=grupos.map(function(g){return '<button class="btn btn-xs '+(g==="Todos"?"btn-g":"btn-s")+'" onclick="filtExGrupo(\''+g+'\')" id="fg_'+g+'">'+g+'</button>';}).join("");
+  filtEx();
+  renderMyCustomEx();
+};
+window.showExTab=function(tab){
+  document.getElementById("tabBuscaContent").style.display=tab==="busca"?"block":"none";
+  document.getElementById("tabCustomContent").style.display=tab==="custom"?"block":"none";
+  document.getElementById("tabBusca").className="btn btn-sm "+(tab==="busca"?"btn-g":"btn-s");
+  document.getElementById("tabCustom").className="btn btn-sm "+(tab==="custom"?"btn-g":"btn-s");
+};
+var _exGrupoFiltro="Todos";
+window.filtExGrupo=function(g){
+  _exGrupoFiltro=g;
+  document.querySelectorAll("[id^='fg_']").forEach(function(b){
+    b.className="btn btn-xs "+(b.id==="fg_"+g?"btn-g":"btn-s");
+  });
+  filtEx();
+};
+window.filtEx=function(){
+  var q=(document.getElementById("exSrch")||{value:""}).value.toLowerCase();
+  var customEx=S.get("customExercises",[]);
+  var allEx=EX_DB.concat(customEx);
+  var filtered=allEx.filter(function(e){
+    var matchQ=!q||e.nome.toLowerCase().includes(q)||e.grupo.toLowerCase().includes(q);
+    var matchG=_exGrupoFiltro==="Todos"||e.grupo===_exGrupoFiltro;
+    return matchQ&&matchG;
+  });
+  var res=document.getElementById("exRes");
+  if(!res)return;
+  res.innerHTML=filtered.length===0?
+    '<p style="color:var(--muted);padding:12px;font-size:.85rem">Nenhum encontrado. Use a aba "Personalizado" para adicionar.</p>':
+    filtered.map(function(e){
+      return '<div class="si" onclick="pickEx('+e.id+')">'+
+        '<div><strong style="font-size:.88rem">'+e.nome+'</strong>'+
+        '<div style="color:var(--muted);font-size:.75rem">'+e.grupo+' · '+(e.dificuldade||"Intermediário")+'</div></div>'+
+        '<span class="badge bg-g">'+e.grupo+'</span></div>';
+    }).join("");
+};
+window.saveCustomEx=function(){
+  var nome=document.getElementById("cexN").value.trim();
+  if(!nome){alert("Digite o nome do exercício");return;}
+  var customEx=S.get("customExercises",[]);
+  var newId=90000+Date.now()%10000;
+  var ex={
+    id:newId,
+    nome:nome,
+    grupo:document.getElementById("cexG").value,
+    dificuldade:document.getElementById("cexD").value,
+    equip:document.getElementById("cexE").value||"Personalizado",
+    instrucoes:[document.getElementById("cexI").value||"Execute o movimento com controle"],
+    videoUrl:document.getElementById("cexV").value||"",
+    musculosPrimarios:[document.getElementById("cexG").value],
+    personalizado:true
+  };
+  customEx.push(ex);
+  S.set("customExercises",customEx);
+  _edEx.push({exId:ex.id,series:3,reps:12,carga:0,descanso:cfg().descanso||60});
+  var p=document.getElementById("exPickOv");
+  if(p)p.remove();
+  rendEdList();
+  alert("Exercício \""+nome+"\" adicionado ao treino!");
+};
+window.renderMyCustomEx=function(){
+  var list=document.getElementById("myCustomExList");
+  if(!list)return;
+  var customEx=S.get("customExercises",[]);
+  if(customEx.length===0){
+    list.innerHTML='<p style="color:var(--muted);font-size:.82rem">Nenhum exercício personalizado ainda.</p>';
+    return;
+  }
+  list.innerHTML=customEx.map(function(e,i){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04);margin-bottom:6px">'+
+      '<div><div style="font-size:.85rem;font-weight:500">'+e.nome+'</div>'+
+      '<div style="font-size:.75rem;color:var(--muted)">'+e.grupo+' · '+e.dificuldade+'</div></div>'+
+      '<div style="display:flex;gap:6px">'+
+        '<button class="btn btn-xs btn-g" onclick="pickEx('+e.id+')">Usar</button>'+
+        '<button class="btn btn-xs btn-r" onclick="delCustomEx('+i+')">✕</button>'+
+      '</div></div>';
+  }).join("");
+};
+window.delCustomEx=function(i){
+  if(!confirm("Remover este exercício?"))return;
+  var customEx=S.get("customExercises",[]);
+  customEx.splice(i,1);
+  S.set("customExercises",customEx);
+  renderMyCustomEx();
+};
+window.pickEx=function(id){
+  var customEx=S.get("customExercises",[]);
+  var allEx=EX_DB.concat(customEx);
+  var ex=allEx.find(function(e){return e.id===id;});
+  if(!ex)return;
+  if(!EX_DB.find(function(e){return e.id===id;})){
+    EX_DB.push(ex);
+  }
+  _edEx.push({exId:id,series:3,reps:12,carga:0,descanso:cfg().descanso||60});
+  var p=document.getElementById("exPickOv");
+  if(p)p.remove();
+  rendEdList();
+};
 window.saveWkEd=function(editId){var nome=document.getElementById("edN").value.trim();var grupo=document.getElementById("edG").value;if(!nome){alert("Digite o nome");return;}if(_edEx.length===0){alert("Adicione exercícios");return;}var all=wks()||[];if(editId){var idx=all.findIndex(function(w){return w.id===editId;});if(idx!==-1){all[idx].nome=nome;all[idx].grupo=grupo;all[idx].exercicios=_edEx;}}else{all.push({id:Date.now(),nome:nome,grupo:grupo,exercicios:_edEx});}saveWks(all);closeModal();pgWork();};
 
 /* ═══════════ WORKOUTS — EXECUTION ═══════════ */
