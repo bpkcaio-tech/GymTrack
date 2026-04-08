@@ -94,8 +94,83 @@ nav a .ico{font-size:1.15rem;width:22px;text-align:center;}
 .stat .val{font-size:1.45rem;font-weight:800;}
 
 /* ══════════════════ MODAL ══════════════════ */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;animation:fadeIn .18s;}
-.modal{background:#0c1a10;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px;width:92%;max-width:620px;max-height:86vh;overflow-y:auto;animation:slideU .22s;}
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(6px);
+  z-index:500;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  animation:fadeIn .18s;
+  padding:0;
+}
+.modal{
+  background:#0c1a10;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:20px 20px 0 0;
+  padding:24px 20px;
+  width:100%;
+  max-width:100%;
+  max-height:90vh;
+  overflow-y:auto;
+  overflow-x:hidden;
+  animation:slideU .22s;
+  box-sizing:border-box;
+}
+@media(min-width:600px){
+  .overlay{
+    align-items:center;
+    padding:20px;
+  }
+  .modal{
+    border-radius:20px;
+    max-width:620px;
+    width:92%;
+  }
+  .modal-lg{
+    max-width:920px;
+  }
+}
+/* Garantir que inputs dentro do modal não estourem */
+.modal input,
+.modal select,
+.modal textarea{
+  max-width:100%;
+  box-sizing:border-box;
+}
+/* Lista de exercícios no editor — scroll horizontal evitado */
+#edList>div{
+  flex-wrap:wrap;
+  gap:6px;
+}
+#edList input{
+  min-width:40px;
+  max-width:60px;
+}
+/* Modal de seleção de exercício no mobile */
+.sres{
+  max-height:45vh;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+/* Bottom sheet no mobile — puxa para baixo da tela */
+@media(max-width:599px){
+  .modal h3{
+    font-size:1rem;
+    margin-bottom:14px;
+  }
+  .modal .frow{
+    flex-direction:column;
+  }
+  .modal .fact{
+    flex-direction:column;
+  }
+  .modal .fact button{
+    width:100%;
+  }
+}
 .modal-lg{max-width:920px;}
 .modal h3{font-size:1.2rem;margin-bottom:18px;}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -224,10 +299,6 @@ nav a .ico{font-size:1.15rem;width:22px;text-align:center;}
   .hdr>div:last-child{width:100%;}
   .hdr button{width:100%!important;}
   .card{padding:14px!important;}
-  .modal{
-    width:95vw!important;max-width:95vw!important;
-    padding:18px 14px!important;max-height:85vh!important;
-  }
   .timer{width:110px!important;height:110px!important;}
   .timer svg{width:110px!important;height:110px!important;}
   .ttxt{font-size:1.4rem!important;}
@@ -286,7 +357,6 @@ nav a .ico{font-size:1.15rem;width:22px;text-align:center;}
   .hdr{flex-direction:column;align-items:flex-start;gap:8px;}
   .hdr button{width:100%!important;}
   .card{padding:14px!important;}
-  .modal{width:95vw!important;max-width:95vw!important;padding:18px 14px!important;max-height:85vh!important;}
   .timer{width:110px!important;height:110px!important;}
   .timer svg{width:110px!important;height:110px!important;}
   canvas{max-width:100%!important;}
@@ -868,7 +938,31 @@ window.delWk=function(id){if(!confirm("Excluir?"))return;saveWks((wks()||[]).fil
 /* ═══════════ WORKOUTS — EDITOR ═══════════ */
 var _edEx=[];
 window.openWkEdit=function(id){var all=wks()||[];var wk=id?all.find(function(w){return w.id===id;}):null;_edEx=wk?JSON.parse(JSON.stringify(wk.exercicios||[])):[];var ov=el("div","overlay");ov.innerHTML='<div class="modal modal-lg"><h3>'+(wk?IC.edit+" Editar":IC.check+" Novo")+' Treino</h3><div class="frow"><div class="frm"><label>Nome</label><input id="edN" value="'+(wk?wk.nome:"")+'"/></div><div class="frm"><label>Grupo</label><select id="edG">'+["Peito","Costas","Pernas","Ombro","Bíceps","Tríceps","Full Body","Cardio"].map(function(g){return '<option'+(wk&&wk.grupo===g?" selected":"")+'>'+g+'</option>';}).join("")+'</select></div></div><h4 style="margin:14px 0 10px;font-size:.95rem">Exercícios</h4><div id="edList"></div><button class="btn btn-s btn-sm" style="margin-top:10px" onclick="openExPicker()">+ Adicionar exercício</button><div class="fact"><button class="btn btn-s" onclick="closeModal()">Cancelar</button><button class="btn btn-g" onclick="saveWkEd('+(id||0)+')">'+IC.save+' Salvar</button></div></div>';document.body.appendChild(ov);rendEdList();};
-function rendEdList(){var c=document.getElementById("edList");if(!c)return;if(_edEx.length===0){c.innerHTML='<p style="color:var(--muted);font-size:.85rem">Nenhum exercício adicionado.</p>';return;}c.innerHTML=_edEx.map(function(e,i){var ex=EX_DB.find(function(x){return x.id===e.exId;});return '<div style="display:flex;gap:6px;align-items:center;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04);margin-bottom:5px"><span style="flex:1;font-size:.88rem;font-weight:500">'+(ex?ex.nome:"?")+'</span><input type="number" value="'+e.series+'" min="1" max="10" style="width:48px;text-align:center" onchange="_edEx['+i+'].series=+this.value"/><span style="color:var(--muted);font-size:.78rem">x</span><input type="number" value="'+e.reps+'" min="1" style="width:48px;text-align:center" onchange="_edEx['+i+'].reps=+this.value"/><input type="number" value="'+e.carga+'" min="0" style="width:55px;text-align:center" onchange="_edEx['+i+'].carga=+this.value"/><span style="color:var(--muted);font-size:.75rem">kg</span><input type="number" value="'+e.descanso+'" min="10" step="5" style="width:55px;text-align:center" onchange="_edEx['+i+'].descanso=+this.value"/><span style="color:var(--muted);font-size:.75rem">s</span><button style="color:var(--red);font-size:1rem" onclick="_edEx.splice('+i+',1);rendEdList()">✕</button></div>';}).join("");}
+function rendEdList(){
+  var c=document.getElementById("edList");
+  if(!c)return;
+  if(_edEx.length===0){
+    c.innerHTML='<p style="color:var(--muted);font-size:.85rem">Nenhum exercício adicionado.</p>';
+    return;
+  }
+  var customEx=S.get("customExercises",[]);
+  var allEx=EX_DB.concat(customEx);
+  c.innerHTML=_edEx.map(function(e,i){
+    var ex=allEx.find(function(x){return x.id===e.exId;});
+    var nome=ex?ex.nome:"Exercício "+e.exId;
+    return '<div style="display:flex;gap:6px;align-items:center;padding:10px;border-radius:10px;background:rgba(255,255,255,.04);margin-bottom:6px">'+
+      '<span style="flex:1;font-size:.88rem;font-weight:500">'+nome+'</span>'+
+      '<input type="number" value="'+e.series+'" min="1" max="10" style="width:48px;text-align:center" onchange="_edEx['+i+'].series=+this.value" placeholder="Séries"/>'+
+      '<span style="color:var(--muted);font-size:.78rem">x</span>'+
+      '<input type="number" value="'+e.reps+'" min="1" style="width:48px;text-align:center" onchange="_edEx['+i+'].reps=+this.value" placeholder="Reps"/>'+
+      '<input type="number" value="'+e.carga+'" min="0" style="width:52px;text-align:center" onchange="_edEx['+i+'].carga=+this.value" placeholder="kg"/>'+
+      '<span style="color:var(--muted);font-size:.75rem">kg</span>'+
+      '<input type="number" value="'+e.descanso+'" min="10" step="5" style="width:52px;text-align:center" onchange="_edEx['+i+'].descanso=+this.value" placeholder="s"/>'+
+      '<span style="color:var(--muted);font-size:.75rem">s</span>'+
+      '<button style="color:var(--red);font-size:1rem;padding:4px 8px" onclick="_edEx.splice('+i+',1);rendEdList()">✕</button>'+
+    '</div>';
+  }).join("");
+}
 window.openExPicker=function(){
   var ov=el("div","overlay");
   ov.id="exPickOv";
