@@ -111,18 +111,17 @@ nav a .ico{font-size:1.15rem;width:22px;text-align:center;}
   background:#0c1a10;
   border:1px solid rgba(255,255,255,.1);
   border-radius:20px 20px 0 0;
-  padding:20px 16px 40px;
+  padding:24px 18px 32px;
   width:100%;
   max-width:100%;
   max-height:88vh;
-  height:auto;
   overflow-y:scroll;
   overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
-  overscroll-behavior:contain;
+  overscroll-behavior-y:contain;
   animation:slideU .22s;
   box-sizing:border-box;
-  position:relative;
+  scroll-padding-bottom:20px;
 }
 @media(min-width:600px){
   .overlay{align-items:center;padding:20px;}
@@ -130,7 +129,7 @@ nav a .ico{font-size:1.15rem;width:22px;text-align:center;}
     border-radius:20px;
     max-width:640px;
     width:94%;
-    padding:28px 24px;
+    padding:28px 24px 32px;
   }
   .modal-lg{max-width:920px;}
 }
@@ -158,9 +157,6 @@ nav a .ico{font-size:1.15rem;width:22px;text-align:center;}
 }
 /* Bottom sheet no mobile — puxa para baixo da tela */
 @media(max-width:599px){
-  .modal{
-    padding-bottom:100px!important;
-  }
   .modal h3{
     font-size:1rem;
     margin-bottom:14px;
@@ -970,7 +966,7 @@ window.delWk=function(id){if(!confirm("Excluir?"))return;saveWks((wks()||[]).fil
 
 /* ═══════════ WORKOUTS — EDITOR ═══════════ */
 var _edEx=[];
-window.openWkEdit=function(id){var all=wks()||[];var wk=id?all.find(function(w){return w.id===id;}):null;_edEx=wk?JSON.parse(JSON.stringify(wk.exercicios||[])):[];var ov=el("div","overlay");ov.innerHTML='<div class="modal modal-lg"><h3>'+(wk?IC.edit+" Editar":IC.check+" Novo")+' Treino</h3><div class="frow"><div class="frm"><label>Nome</label><input id="edN" value="'+(wk?wk.nome:"")+'"/></div><div class="frm"><label>Grupo</label><select id="edG">'+["Peito","Costas","Pernas","Ombro","Bíceps","Tríceps","Full Body","Cardio"].map(function(g){return '<option'+(wk&&wk.grupo===g?" selected":"")+'>'+g+'</option>';}).join("")+'</select></div></div><h4 style="margin:14px 0 10px;font-size:.95rem">Exercícios</h4><div id="edList"></div><button class="btn btn-s btn-sm" style="margin-top:10px" onclick="openExPicker()">+ Adicionar exercício</button><div style="position:sticky;bottom:-1px;left:0;right:0;background:linear-gradient(transparent,#0c1a10 18%);padding:20px 0 8px;margin-top:20px;display:flex;gap:10px;z-index:10"><button class="btn btn-s" style="flex:1;padding:14px" onclick="closeModal()">Cancelar</button><button class="btn btn-g" style="flex:2;padding:14px" onclick="saveWkEd('+(id||0)+')">'+IC.save+' Salvar treino</button></div></div>';document.body.appendChild(ov);document.body.style.overflow='hidden';document.body.style.position='fixed';document.body.style.width='100%';rendEdList();};
+window.openWkEdit=function(id){var all=wks()||[];var wk=id?all.find(function(w){return w.id===id;}):null;_edEx=wk?JSON.parse(JSON.stringify(wk.exercicios||[])):[];var ov=el("div","overlay");ov.innerHTML='<div class="modal modal-lg"><h3>'+(wk?IC.edit+" Editar":IC.check+" Novo")+' Treino</h3><div class="frow"><div class="frm"><label>Nome</label><input id="edN" value="'+(wk?wk.nome:"")+'"/></div><div class="frm"><label>Grupo</label><select id="edG">'+["Peito","Costas","Pernas","Ombro","Bíceps","Tríceps","Full Body","Cardio"].map(function(g){return '<option'+(wk&&wk.grupo===g?" selected":"")+'>'+g+'</option>';}).join("")+'</select></div></div><h4 style="margin:14px 0 10px;font-size:.95rem">Exercícios</h4><div id="edList"></div><button class="btn btn-s btn-sm" style="margin-top:10px" onclick="openExPicker()">+ Adicionar exercício</button><div style="display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07)"><button class="btn btn-s" style="flex:1;padding:14px" onclick="closeModal()">Cancelar</button><button class="btn btn-g" style="flex:2;padding:14px" onclick="saveWkEd('+(id||0)+')">'+IC.save+' Salvar treino</button></div><div style="height:20px"></div></div>';document.body.appendChild(ov);document.body.style.overflow='hidden';document.body.style.position='fixed';document.body.style.width='100%';rendEdList();};
 function rendEdList(){
   var c=document.getElementById("edList");
   if(!c)return;
