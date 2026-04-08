@@ -97,41 +97,42 @@ nav a .ico{font-size:1.15rem;width:22px;text-align:center;}
 .overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.6);
-  backdrop-filter:blur(6px);
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
   z-index:500;
   display:flex;
   align-items:flex-end;
   justify-content:center;
   animation:fadeIn .18s;
-  padding:0;
+  overflow:hidden;
 }
 .modal{
   background:#0c1a10;
   border:1px solid rgba(255,255,255,.1);
   border-radius:20px 20px 0 0;
-  padding:24px 20px;
+  padding:20px 16px 40px;
   width:100%;
   max-width:100%;
-  max-height:90vh;
+  max-height:88vh;
+  height:auto;
   overflow-y:auto;
   overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
   animation:slideU .22s;
   box-sizing:border-box;
+  position:relative;
 }
 @media(min-width:600px){
-  .overlay{
-    align-items:center;
-    padding:20px;
-  }
+  .overlay{align-items:center;padding:20px;}
   .modal{
     border-radius:20px;
-    max-width:620px;
-    width:92%;
+    max-width:640px;
+    width:94%;
+    padding:28px 24px;
   }
-  .modal-lg{
-    max-width:920px;
-  }
+  .modal-lg{max-width:920px;}
 }
 /* Garantir que inputs dentro do modal não estourem */
 .modal input,
@@ -869,7 +870,7 @@ document.querySelectorAll("#navLinks a").forEach(function(a){a.addEventListener(
 
 /* ═══════════ HELPERS ═══════════ */
 function el(tag,cls){var e=document.createElement(tag);if(cls)e.className=cls;return e;}
-function closeModal(){document.querySelectorAll(".overlay").forEach(function(o){o.remove();});}
+function closeModal(){document.querySelectorAll(".overlay").forEach(function(o){o.remove();});document.body.style.overflow='';}
 function beep(){try{var c=new(window.AudioContext||window.webkitAudioContext)();var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;o.type="square";g.gain.value=0.25;o.start();o.stop(c.currentTime+0.25);setTimeout(function(){var o2=c.createOscillator(),g2=c.createGain();o2.connect(g2);g2.connect(c.destination);o2.frequency.value=1100;o2.type="square";g2.gain.value=0.25;o2.start();o2.stop(c.currentTime+0.35);},300);}catch(e){}}
 function pct(v,t){return Math.min(100,Math.round(v/t*100));}
 function fmtDate(d){return new Date(d+"T12:00:00").toLocaleDateString("pt-BR");}
@@ -937,12 +938,12 @@ window.delWk=function(id){if(!confirm("Excluir?"))return;saveWks((wks()||[]).fil
 
 /* ═══════════ WORKOUTS — EDITOR ═══════════ */
 var _edEx=[];
-window.openWkEdit=function(id){var all=wks()||[];var wk=id?all.find(function(w){return w.id===id;}):null;_edEx=wk?JSON.parse(JSON.stringify(wk.exercicios||[])):[];var ov=el("div","overlay");ov.innerHTML='<div class="modal modal-lg"><h3>'+(wk?IC.edit+" Editar":IC.check+" Novo")+' Treino</h3><div class="frow"><div class="frm"><label>Nome</label><input id="edN" value="'+(wk?wk.nome:"")+'"/></div><div class="frm"><label>Grupo</label><select id="edG">'+["Peito","Costas","Pernas","Ombro","Bíceps","Tríceps","Full Body","Cardio"].map(function(g){return '<option'+(wk&&wk.grupo===g?" selected":"")+'>'+g+'</option>';}).join("")+'</select></div></div><h4 style="margin:14px 0 10px;font-size:.95rem">Exercícios</h4><div id="edList"></div><button class="btn btn-s btn-sm" style="margin-top:10px" onclick="openExPicker()">+ Adicionar exercício</button><div class="fact"><button class="btn btn-s" onclick="closeModal()">Cancelar</button><button class="btn btn-g" onclick="saveWkEd('+(id||0)+')">'+IC.save+' Salvar</button></div></div>';document.body.appendChild(ov);rendEdList();};
+window.openWkEdit=function(id){var all=wks()||[];var wk=id?all.find(function(w){return w.id===id;}):null;_edEx=wk?JSON.parse(JSON.stringify(wk.exercicios||[])):[];var ov=el("div","overlay");ov.innerHTML='<div class="modal modal-lg"><h3>'+(wk?IC.edit+" Editar":IC.check+" Novo")+' Treino</h3><div class="frow"><div class="frm"><label>Nome</label><input id="edN" value="'+(wk?wk.nome:"")+'"/></div><div class="frm"><label>Grupo</label><select id="edG">'+["Peito","Costas","Pernas","Ombro","Bíceps","Tríceps","Full Body","Cardio"].map(function(g){return '<option'+(wk&&wk.grupo===g?" selected":"")+'>'+g+'</option>';}).join("")+'</select></div></div><h4 style="margin:14px 0 10px;font-size:.95rem">Exercícios</h4><div id="edList"></div><button class="btn btn-s btn-sm" style="margin-top:10px" onclick="openExPicker()">+ Adicionar exercício</button><div style="position:sticky;bottom:0;background:#0c1a10;padding:14px 0 4px;margin-top:16px;display:flex;gap:10px;border-top:1px solid rgba(255,255,255,.06)"><button class="btn btn-s" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-g" style="flex:2" onclick="saveWkEd('+(id||0)+')">'+IC.save+' Salvar treino</button></div></div>';document.body.appendChild(ov);document.body.style.overflow='hidden';rendEdList();};
 function rendEdList(){
   var c=document.getElementById("edList");
   if(!c)return;
   if(_edEx.length===0){
-    c.innerHTML='<p style="color:var(--muted);font-size:.85rem">Nenhum exercício adicionado.</p>';
+    c.innerHTML='<p style="color:var(--muted);font-size:.85rem;padding:8px 0">Nenhum exercício adicionado.</p>';
     return;
   }
   var customEx=S.get("customExercises",[]);
@@ -950,16 +951,29 @@ function rendEdList(){
   c.innerHTML=_edEx.map(function(e,i){
     var ex=allEx.find(function(x){return x.id===e.exId;});
     var nome=ex?ex.nome:"Exercício "+e.exId;
-    return '<div style="display:flex;gap:6px;align-items:center;padding:10px;border-radius:10px;background:rgba(255,255,255,.04);margin-bottom:6px">'+
-      '<span style="flex:1;font-size:.88rem;font-weight:500">'+nome+'</span>'+
-      '<input type="number" value="'+e.series+'" min="1" max="10" style="width:48px;text-align:center" onchange="_edEx['+i+'].series=+this.value" placeholder="Séries"/>'+
-      '<span style="color:var(--muted);font-size:.78rem">x</span>'+
-      '<input type="number" value="'+e.reps+'" min="1" style="width:48px;text-align:center" onchange="_edEx['+i+'].reps=+this.value" placeholder="Reps"/>'+
-      '<input type="number" value="'+e.carga+'" min="0" style="width:52px;text-align:center" onchange="_edEx['+i+'].carga=+this.value" placeholder="kg"/>'+
-      '<span style="color:var(--muted);font-size:.75rem">kg</span>'+
-      '<input type="number" value="'+e.descanso+'" min="10" step="5" style="width:52px;text-align:center" onchange="_edEx['+i+'].descanso=+this.value" placeholder="s"/>'+
-      '<span style="color:var(--muted);font-size:.75rem">s</span>'+
-      '<button style="color:var(--red);font-size:1rem;padding:4px 8px" onclick="_edEx.splice('+i+',1);rendEdList()">✕</button>'+
+    return '<div style="padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.04);margin-bottom:8px;border:1px solid rgba(255,255,255,.06)">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+        '<span style="font-size:.9rem;font-weight:600;flex:1;margin-right:8px">'+nome+'</span>'+
+        '<button style="color:var(--red);font-size:1.1rem;padding:2px 8px;background:rgba(239,68,68,.1);border-radius:8px;border:1px solid rgba(239,68,68,.2)" onclick="_edEx.splice('+i+',1);rendEdList()">✕</button>'+
+      '</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;align-items:center">'+
+        '<div style="text-align:center">'+
+          '<div style="font-size:.65rem;color:var(--muted);margin-bottom:3px">SÉRIES</div>'+
+          '<input type="number" value="'+e.series+'" min="1" max="10" style="width:100%;text-align:center;padding:8px 4px;border-radius:10px;font-size:.95rem;font-weight:600" onchange="_edEx['+i+'].series=+this.value"/>'+
+        '</div>'+
+        '<div style="text-align:center">'+
+          '<div style="font-size:.65rem;color:var(--muted);margin-bottom:3px">REPS</div>'+
+          '<input type="number" value="'+e.reps+'" min="1" style="width:100%;text-align:center;padding:8px 4px;border-radius:10px;font-size:.95rem;font-weight:600" onchange="_edEx['+i+'].reps=+this.value"/>'+
+        '</div>'+
+        '<div style="text-align:center">'+
+          '<div style="font-size:.65rem;color:var(--muted);margin-bottom:3px">CARGA (kg)</div>'+
+          '<input type="number" value="'+e.carga+'" min="0" style="width:100%;text-align:center;padding:8px 4px;border-radius:10px;font-size:.95rem;font-weight:600" onchange="_edEx['+i+'].carga=+this.value"/>'+
+        '</div>'+
+        '<div style="text-align:center">'+
+          '<div style="font-size:.65rem;color:var(--muted);margin-bottom:3px">DESCANSO (s)</div>'+
+          '<input type="number" value="'+e.descanso+'" min="10" step="5" style="width:100%;text-align:center;padding:8px 4px;border-radius:10px;font-size:.95rem;font-weight:600" onchange="_edEx['+i+'].descanso=+this.value"/>'+
+        '</div>'+
+      '</div>'+
     '</div>';
   }).join("");
 }
@@ -1002,7 +1016,7 @@ window.openExPicker=function(){
   '</div>'+
   '<div class="fact"><button class="btn btn-s" onclick="document.getElementById(\'exPickOv\').remove()">Fechar</button></div>'+
   '</div>';
-  document.body.appendChild(ov);
+  document.body.appendChild(ov);document.body.style.overflow='hidden';
   var grupos=["Todos","Peito","Costas","Pernas","Ombro","Bíceps","Tríceps","Abdômen","Funcional","Cardio","Mobilidade"];
   document.getElementById("exGrupoFilters").innerHTML=grupos.map(function(g){return '<button class="btn btn-xs '+(g==="Todos"?"btn-g":"btn-s")+'" onclick="filtExGrupo(\''+g+'\')" id="fg_'+g+'">'+g+'</button>';}).join("");
   filtEx();
@@ -1142,7 +1156,7 @@ window.drgDrop=function(e){e.preventDefault();var target=e.currentTarget;target.
 window.drgEnd=function(e){_dragMealId=null;document.querySelectorAll(".meal-sec").forEach(function(el){el.classList.remove("dragging","drag-over");});};
 window.setMealTime=function(mealId,val){var t=getMealTimes();t[mealId]=val;saveMealTimes(t);pgDiet();};
 var _selFood=null;
-window.openAddFood=function(mealId,mealName){_selFood=null;var refMap={cafe:"c",pre:"p",almoco:"a",tarde:"t",jantar:"j",ceia:"s"};_curMealRef=refMap[mealId]||"";var ov=el("div","overlay");ov.id="addFoodOv";ov.innerHTML='<div class="modal"><h3>Adicionar — '+mealName+'</h3><input class="sinp" id="fdSrch" placeholder="Buscar alimento..." oninput="filtFd()"/><div class="sres" id="fdRes" style="max-height:220px"></div><div id="fdQty" style="display:none;margin-top:14px;padding:14px;border-radius:12px;background:rgba(255,255,255,.04)"><div style="font-weight:600;margin-bottom:6px" id="fdName"></div><div class="frm"><label>Quantidade (g/ml)</label><input type="number" id="fdAmt" value="100" min="1" oninput="calcFd()"/></div><div id="fdPreview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:.8rem;text-align:center"></div><button class="btn btn-g" style="width:100%;margin-top:10px" onclick="confFood(\''+mealId+'\')">'+IC.check+' Confirmar</button></div><div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px"><button class="btn btn-s btn-sm" onclick="showCustFood(\''+mealId+'\')">'+IC.edit+' Cadastrar manual</button></div><div id="custFdBox" style="display:none;margin-top:10px"></div><div class="fact"><button class="btn btn-s" onclick="closeModal()">Fechar</button></div></div>';document.body.appendChild(ov);filtFd();};
+window.openAddFood=function(mealId,mealName){_selFood=null;var refMap={cafe:"c",pre:"p",almoco:"a",tarde:"t",jantar:"j",ceia:"s"};_curMealRef=refMap[mealId]||"";var ov=el("div","overlay");ov.id="addFoodOv";ov.innerHTML='<div class="modal"><h3>Adicionar — '+mealName+'</h3><input class="sinp" id="fdSrch" placeholder="Buscar alimento..." oninput="filtFd()"/><div class="sres" id="fdRes" style="max-height:220px"></div><div id="fdQty" style="display:none;margin-top:14px;padding:14px;border-radius:12px;background:rgba(255,255,255,.04)"><div style="font-weight:600;margin-bottom:6px" id="fdName"></div><div class="frm"><label>Quantidade (g/ml)</label><input type="number" id="fdAmt" value="100" min="1" oninput="calcFd()"/></div><div id="fdPreview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:.8rem;text-align:center"></div><button class="btn btn-g" style="width:100%;margin-top:10px" onclick="confFood(\''+mealId+'\')">'+IC.check+' Confirmar</button></div><div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px"><button class="btn btn-s btn-sm" onclick="showCustFood(\''+mealId+'\')">'+IC.edit+' Cadastrar manual</button></div><div id="custFdBox" style="display:none;margin-top:10px"></div><div class="fact"><button class="btn btn-s" onclick="closeModal()">Fechar</button></div></div>';document.body.appendChild(ov);document.body.style.overflow='hidden';filtFd();};
 var _curMealRef="";
 window.filtFd=function(){var q=document.getElementById("fdSrch").value.toLowerCase();var af=FOODS_DB.concat(cfoods());var filtered=af.filter(function(f){var matchQ=!q||f.nome.toLowerCase().includes(q);var matchRef=!_curMealRef||!f.ref||f.ref.includes(_curMealRef);return matchQ&&matchRef;});document.getElementById("fdRes").innerHTML=filtered.length===0?'<p style="color:var(--muted);padding:12px;font-size:.85rem">Nenhum alimento encontrado.</p>':filtered.map(function(f){return '<div class="si" onclick="selFd('+f.id+','+f.cal+','+f.prot+','+f.carb+','+f.gord+',\''+f.nome.replace(/'/g,"\\'")+"')\">"+'<div><strong style="font-size:.85rem">'+f.nome+'</strong><div style="color:var(--muted);font-size:.72rem">'+f.cal+'cal P:'+f.prot+'g C:'+f.carb+'g G:'+f.gord+'g /100g</div></div></div>';}).join("");};
 window.selFd=function(id,cal,prot,carb,gord,nome){_selFood={id:id,cal:cal,prot:prot,carb:carb,gord:gord,nome:nome};document.getElementById("fdQty").style.display="block";document.getElementById("fdName").textContent=nome;document.getElementById("fdAmt").value=100;calcFd();};
