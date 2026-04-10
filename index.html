@@ -45,7 +45,7 @@ select option{background:#0c1a10;color:#E9F7EF;padding:8px;}
 /* ══════════════════ LAYOUT ══════════════════ */
 #shell{display:flex;min-height:100vh;}
 #sidebar{width:240px;min-width:240px;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;padding:24px 18px;background:rgba(255,255,255,.03);border-right:1px solid var(--border);z-index:200;overflow-y:auto;}
-#main{margin-left:240px;width:calc(100vw - 240px);padding:32px;min-height:100vh;}
+#main{margin-left:240px;width:calc(100vw - 240px);padding:32px;min-height:100vh;overflow-y:auto;scroll-behavior:smooth;}
 
 /* ══════════════════ SIDEBAR ══════════════════ */
 .logo{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
@@ -323,6 +323,10 @@ nav a .ico{font-size:1.15rem;width:22px;text-align:center;}
     margin-left:0!important;
     width:100vw!important;
     padding:16px 14px 74px!important;
+    overflow-y:auto;
+    scroll-behavior:smooth;
+    height:100vh;
+    overflow-x:hidden;
   }
   .g3,.g2{grid-template-columns:1fr!important;}
   .exec{grid-template-columns:1fr!important;}
@@ -1191,9 +1195,12 @@ window.confSerie=function(){
   rendExec();
 
   setTimeout(function(){
+    var main=document.getElementById("main");
+    if(main)main.scrollTop=0;
     window.scrollTo({top:0,behavior:"smooth"});
-    if(M)M.scrollTop=0;
-  },50);
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+  },80);
 };
 window.prevEx=function(){
   if(!EXE||EXE.ci<=0)return;
@@ -1204,9 +1211,12 @@ window.prevEx=function(){
   EXE.tSec=0;
   rendExec();
   setTimeout(function(){
+    var main=document.getElementById("main");
+    if(main){main.scrollTop=0;main.scrollIntoView({behavior:"smooth",block:"start"});}
     window.scrollTo({top:0,behavior:"smooth"});
-    if(M)M.scrollTop=0;
-  },50);
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+  },80);
 };
 window.nextEx=function(){
   if(!EXE)return;
@@ -1221,9 +1231,12 @@ window.nextEx=function(){
   EXE.tSec=0;
   rendExec();
   setTimeout(function(){
+    var main=document.getElementById("main");
+    if(main){main.scrollTop=0;main.scrollIntoView({behavior:"smooth",block:"start"});}
     window.scrollTo({top:0,behavior:"smooth"});
-    if(M)M.scrollTop=0;
-  },50);
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+  },80);
 };
 
 /* ═══════════ WORKOUTS — SUMMARY ═══════════ */
