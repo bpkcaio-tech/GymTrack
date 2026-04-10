@@ -957,22 +957,22 @@ function rendEdList(){
         '<span style="font-size:.9rem;font-weight:600;flex:1;margin-right:8px">'+nome+'</span>'+
         '<button style="color:var(--red);font-size:1.1rem;padding:2px 8px;background:rgba(239,68,68,.1);border-radius:8px;border:1px solid rgba(239,68,68,.2)" onclick="_edEx.splice('+i+',1);rendEdList()">✕</button>'+
       '</div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;align-items:center">'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;align-items:center">'+
         '<div style="text-align:center">'+
-          '<div style="font-size:.65rem;color:var(--muted);margin-bottom:3px">SÉRIES</div>'+
-          '<input type="number" value="'+e.series+'" min="1" max="10" style="width:100%;text-align:center;padding:8px 4px;border-radius:10px;font-size:.95rem;font-weight:600" onchange="_edEx['+i+'].series=+this.value"/>'+
+          '<div style="font-size:.6rem;color:var(--muted);margin-bottom:3px;text-transform:uppercase">Séries</div>'+
+          '<input type="number" value="'+e.series+'" min="1" max="10" style="width:100%;text-align:center;padding:10px 2px;border-radius:10px;font-size:1rem;font-weight:700" onchange="_edEx['+i+'].series=+this.value"/>'+
         '</div>'+
         '<div style="text-align:center">'+
-          '<div style="font-size:.65rem;color:var(--muted);margin-bottom:3px">REPS</div>'+
-          '<input type="number" value="'+e.reps+'" min="1" style="width:100%;text-align:center;padding:8px 4px;border-radius:10px;font-size:.95rem;font-weight:600" onchange="_edEx['+i+'].reps=+this.value"/>'+
+          '<div style="font-size:.6rem;color:var(--muted);margin-bottom:3px;text-transform:uppercase">Reps</div>'+
+          '<input type="number" value="'+e.reps+'" min="1" style="width:100%;text-align:center;padding:10px 2px;border-radius:10px;font-size:1rem;font-weight:700" onchange="_edEx['+i+'].reps=+this.value"/>'+
         '</div>'+
         '<div style="text-align:center">'+
-          '<div style="font-size:.65rem;color:var(--muted);margin-bottom:3px">CARGA (kg)</div>'+
-          '<input type="number" value="'+e.carga+'" min="0" style="width:100%;text-align:center;padding:8px 4px;border-radius:10px;font-size:.95rem;font-weight:600" onchange="_edEx['+i+'].carga=+this.value"/>'+
+          '<div style="font-size:.6rem;color:var(--muted);margin-bottom:3px;text-transform:uppercase">Carga</div>'+
+          '<input type="number" value="'+e.carga+'" min="0" style="width:100%;text-align:center;padding:10px 2px;border-radius:10px;font-size:1rem;font-weight:700" onchange="_edEx['+i+'].carga=+this.value"/>'+
         '</div>'+
         '<div style="text-align:center">'+
-          '<div style="font-size:.65rem;color:var(--muted);margin-bottom:3px">DESCANSO (s)</div>'+
-          '<input type="number" value="'+e.descanso+'" min="10" step="5" style="width:100%;text-align:center;padding:8px 4px;border-radius:10px;font-size:.95rem;font-weight:600" onchange="_edEx['+i+'].descanso=+this.value"/>'+
+          '<div style="font-size:.6rem;color:var(--muted);margin-bottom:3px;text-transform:uppercase">Desc.</div>'+
+          '<input type="number" value="'+e.descanso+'" min="10" step="5" style="width:100%;text-align:center;padding:10px 2px;border-radius:10px;font-size:1rem;font-weight:700" onchange="_edEx['+i+'].descanso=+this.value"/>'+
         '</div>'+
       '</div>'+
     '</div>';
@@ -1156,15 +1156,75 @@ window.startWk=function(id){
   wk.exercicios.forEach(function(_,i){EXE.log[i]=[];});
   rendExec();
 };
-function rendExec(){if(!EXE)return;var e=EXE.wk.exercicios[EXE.ci];var customEx=S.get("customExercises",[]);var allEx=EX_DB.concat(customEx);var ex=allEx.find(function(x){return x.id===e.exId;});if(!ex)return;var tot=EXE.wk.exercicios.length,prg=Math.round(EXE.ci/tot*100),sLog=EXE.log[EXE.ci]||[];var rest=e.descanso||cfg().descanso||60;if(EXE.tSec===0&&!EXE.tRun)EXE.tSec=rest;var circ=C2PI*65;M.innerHTML='<div class="hdr"><div><h2>'+EXE.wk.nome+'</h2><p>Exercício '+(EXE.ci+1)+' de '+tot+'</p></div><div style="display:flex;gap:8px"><button class="btn btn-s" onclick="if(confirm(\'Voltar para lista de treinos?\')){EXE=null;pgWork();}">'+IC.chevL+' Voltar</button><button class="btn btn-r" onclick="endWk()">'+IC.stop+' Encerrar</button></div></div><div class="pbar" style="height:5px;margin-bottom:20px"><div class="f gr" style="width:'+prg+'%"></div></div><div class="exec"><div><div class="card"><h3 style="font-size:1.3rem;margin-bottom:14px">'+ex.nome+'</h3><div class="exec-img-wrap"><span class="fallback-txt">'+ex.nome+'</span><img src="'+exThumb(ex)+'" alt="'+ex.nome+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" onerror="this.style.display=\'none\'"/></div><div id="vidBox">'+(EXE.vids[EXE.ci]?'<iframe class="vid-if" src="'+ex.videoUrl+'?rel=0&modestbranding=1&playsinline=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>':'<div class="vid-ph" onclick="loadVid('+EXE.ci+',\''+ex.videoUrl+'\')"><div style="text-align:center"><div style="font-size:2rem;margin-bottom:8px">▶</div><div>Ver execução</div><div style="font-size:.75rem;color:var(--muted);margin-top:4px">Clique para carregar o vídeo</div></div></div>')+'</div><h4 style="margin:14px 0 8px;font-size:.92rem">Instruções</h4><ol class="steps">'+ex.instrucoes.map(function(inst){return '<li>'+inst+'</li>';}).join("")+'</ol><h4 style="margin:14px 0 8px;font-size:.92rem">Músculos</h4><div class="chips">'+(ex.musculosPrimarios||[ex.grupo]).map(function(m){return '<span class="ch">'+m+'</span>';}).join("")+'</div></div></div><div><div class="card" style="text-align:center;margin-bottom:16px"><h4 style="margin-bottom:12px">'+IC.clock+' Descanso</h4><div class="timer" onclick="togTimer()" style="cursor:pointer"><svg viewBox="0 0 150 150" width="150" height="150"><circle class="tbg" cx="75" cy="75" r="65"/><circle class="tfg" id="tFg" cx="75" cy="75" r="65" stroke-dasharray="'+circ+'" stroke-dashoffset="'+circ*(1-EXE.tSec/rest)+'"/></svg><div class="ttxt" id="tTxt" '+(EXE.tSec<=3&&EXE.tSec>0?'style="color:var(--red)"':'')+'>'+EXE.tSec+'s</div></div><div style="display:flex;gap:6px;justify-content:center;margin-top:8px"><button class="btn btn-sm btn-s" onclick="togTimer()">'+(EXE.tRun?IC.stop+" Pausar":IC.play+" Iniciar")+'</button><button class="btn btn-sm btn-s" onclick="rstTimer('+rest+')">Reset</button></div><div style="display:flex;gap:4px;justify-content:center;margin-top:8px">'+[30,45,60,90,120].map(function(t){return '<button class="btn btn-xs" style="'+(rest===t?'background:var(--green-soft)':'background:rgba(255,255,255,.04)')+'" onclick="rstTimer('+t+')">'+t+'s</button>';}).join("")+'</div></div><div class="card" style="margin-bottom:16px"><h4 style="margin-bottom:10px">'+IC.edit+' Série '+EXE.cs+'/'+e.series+'</h4><div class="frow"><div class="frm"><label>Carga (kg)</label><input type="number" id="xCarga" value="'+e.carga+'" min="0" step="0.5"/></div><div class="frm"><label>Reps</label><input type="number" id="xReps" value="'+e.reps+'" min="1"/></div></div><button class="btn btn-g" style="width:100%;margin-top:8px" onclick="confSerie()">'+IC.check+' Confirmar série</button></div><div class="card" style="margin-bottom:16px"><h4 style="margin-bottom:8px">Séries registradas</h4>'+(sLog.length===0?'<p style="color:var(--muted);font-size:.82rem">Nenhuma ainda.</p>':sLog.map(function(s,i){return '<div class="srow"><span style="color:var(--green)">Série '+(i+1)+'</span><span>'+s.carga+'kg × '+s.reps+'</span><span style="color:var(--muted)">'+s.carga*s.reps+'kg</span></div>';}).join(""))+'</div><div style="display:flex;gap:8px"><button class="btn btn-s" '+(EXE.ci===0?'disabled style="opacity:.4"':'')+' onclick="prevEx()">'+IC.chevL+' Anterior</button><button class="btn btn-g" style="flex:1" onclick="nextEx()">'+(EXE.ci===tot-1?IC.flag+" Finalizar":"Próximo "+IC.chevR)+'</button></div></div></div>';}
+function rendExec(){if(!EXE)return;var e=EXE.wk.exercicios[EXE.ci];var customEx=S.get("customExercises",[]);var allEx=EX_DB.concat(customEx);var ex=allEx.find(function(x){return x.id===e.exId;});if(!ex)return;var tot=EXE.wk.exercicios.length,prg=Math.round(EXE.ci/tot*100),sLog=EXE.log[EXE.ci]||[];var rest=e.descanso||cfg().descanso||60;if(EXE.tSec===0)EXE.tSec=rest;var circ=C2PI*65;M.innerHTML='<div class="hdr"><div><h2>'+EXE.wk.nome+'</h2><p>Exercício '+(EXE.ci+1)+' de '+tot+'</p></div><div style="display:flex;gap:8px"><button class="btn btn-s" onclick="if(confirm(\'Voltar para lista de treinos?\')){EXE=null;pgWork();}">'+IC.chevL+' Voltar</button><button class="btn btn-r" onclick="endWk()">'+IC.stop+' Encerrar</button></div></div><div class="pbar" style="height:5px;margin-bottom:20px"><div class="f gr" style="width:'+prg+'%"></div></div><div class="exec"><div><div class="card"><h3 style="font-size:1.3rem;margin-bottom:14px">'+ex.nome+'</h3><div class="exec-img-wrap"><span class="fallback-txt">'+ex.nome+'</span><img src="'+exThumb(ex)+'" alt="'+ex.nome+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" onerror="this.style.display=\'none\'"/></div><div id="vidBox">'+(EXE.vids[EXE.ci]?'<iframe class="vid-if" src="'+ex.videoUrl+'?rel=0&modestbranding=1&playsinline=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>':'<div class="vid-ph" onclick="loadVid('+EXE.ci+',\''+ex.videoUrl+'\')"><div style="text-align:center"><div style="font-size:2rem;margin-bottom:8px">▶</div><div>Ver execução</div><div style="font-size:.75rem;color:var(--muted);margin-top:4px">Clique para carregar o vídeo</div></div></div>')+'</div><h4 style="margin:14px 0 8px;font-size:.92rem">Instruções</h4><ol class="steps">'+ex.instrucoes.map(function(inst){return '<li>'+inst+'</li>';}).join("")+'</ol><h4 style="margin:14px 0 8px;font-size:.92rem">Músculos</h4><div class="chips">'+(ex.musculosPrimarios||[ex.grupo]).map(function(m){return '<span class="ch">'+m+'</span>';}).join("")+'</div></div></div><div><div class="card" style="text-align:center;margin-bottom:16px"><h4 style="margin-bottom:12px">'+IC.clock+' Descanso</h4><div class="timer" onclick="togTimer()" style="cursor:pointer"><svg viewBox="0 0 150 150" width="150" height="150"><circle class="tbg" cx="75" cy="75" r="65"/><circle class="tfg" id="tFg" cx="75" cy="75" r="65" stroke-dasharray="'+circ+'" stroke-dashoffset="'+circ*(1-EXE.tSec/rest)+'"/></svg><div class="ttxt" id="tTxt" '+(EXE.tSec<=3&&EXE.tSec>0?'style="color:var(--red)"':'')+'>'+EXE.tSec+'s</div></div><div style="display:flex;gap:6px;justify-content:center;margin-top:8px"><button class="btn btn-sm btn-s" onclick="togTimer()">'+(EXE.tRun?IC.stop+" Pausar":IC.play+" Iniciar")+'</button><button class="btn btn-sm btn-s" onclick="rstTimer('+rest+')">Reset</button></div><div style="display:flex;gap:4px;justify-content:center;margin-top:8px">'+[30,45,60,90,120].map(function(t){return '<button class="btn btn-xs" style="'+(rest===t?'background:var(--green-soft)':'background:rgba(255,255,255,.04)')+'" onclick="rstTimer('+t+')">'+t+'s</button>';}).join("")+'</div></div><div class="card" style="margin-bottom:16px"><h4 style="margin-bottom:10px">'+IC.edit+' Série '+EXE.cs+'/'+e.series+'</h4><div class="frow"><div class="frm"><label>Carga (kg)</label><input type="number" id="xCarga" value="'+e.carga+'" min="0" step="0.5"/></div><div class="frm"><label>Reps</label><input type="number" id="xReps" value="'+e.reps+'" min="1"/></div></div><button class="btn btn-g" style="width:100%;margin-top:8px" onclick="confSerie()">'+IC.check+' Confirmar série</button></div><div class="card" style="margin-bottom:16px"><h4 style="margin-bottom:8px">Séries registradas</h4>'+(sLog.length===0?'<p style="color:var(--muted);font-size:.82rem">Nenhuma ainda.</p>':sLog.map(function(s,i){return '<div class="srow"><span style="color:var(--green)">Série '+(i+1)+'</span><span>'+s.carga+'kg × '+s.reps+'</span><span style="color:var(--muted)">'+s.carga*s.reps+'kg</span></div>';}).join(""))+'</div><div style="display:flex;gap:8px"><button class="btn btn-s" '+(EXE.ci===0?'disabled style="opacity:.4"':'')+' onclick="prevEx()">'+IC.chevL+' Anterior</button><button class="btn btn-g" style="flex:1" onclick="nextEx()">'+(EXE.ci===tot-1?IC.flag+" Finalizar":"Próximo "+IC.chevR)+'</button></div></div></div>';}
 setTimeout(function(){var imgEl=document.querySelector('.exec-img-wrap img');if(imgEl&&EXE){var e=EXE.wk.exercicios[EXE.ci];var ex=EX_DB.find(function(x){return x.id===e.exId;});if(ex)loadExGif(imgEl,ex.nome);}},50);
 window.loadVid=function(i,url){EXE.vids[i]=true;var b=document.getElementById("vidBox");if(!b)return;var watchUrl=url.replace("/embed/","/watch?v=");b.innerHTML='<iframe class="vid-if" src="'+url+'?rel=0&modestbranding=1&playsinline=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><div style="text-align:center;margin-top:6px"><a href="'+watchUrl+'" target="_blank" style="font-size:.75rem;color:var(--muted)">Abrir no YouTube ↗</a></div>';};
 function updTimerDom(rest){var fg=document.getElementById("tFg"),tx=document.getElementById("tTxt");if(!fg||!tx)return;fg.setAttribute("stroke-dashoffset",C2PI*65*(1-EXE.tSec/rest));tx.textContent=EXE.tSec+"s";tx.style.color=EXE.tSec<=3&&EXE.tSec>0?"var(--red)":"";}
 window.togTimer=function(){if(!EXE)return;var e=EXE.wk.exercicios[EXE.ci];var rest=e.descanso||cfg().descanso||60;if(EXE.tRun){clearInterval(EXE.tInt);EXE.tRun=false;}else{if(EXE.tSec<=0)EXE.tSec=rest;EXE.tRun=true;EXE.tInt=setInterval(function(){EXE.tSec--;updTimerDom(rest);if(EXE.tSec<=0){clearInterval(EXE.tInt);EXE.tRun=false;beep();}},1000);}};
 window.rstTimer=function(s){if(!EXE)return;clearInterval(EXE.tInt);EXE.tRun=false;EXE.tSec=s;updTimerDom(s);};
-window.confSerie=function(){if(!EXE)return;var carga=parseFloat(document.getElementById("xCarga").value)||0;var reps=parseInt(document.getElementById("xReps").value)||0;if(reps===0){alert("Informe as reps");return;}EXE.log[EXE.ci].push({carga:carga,reps:reps});var e=EXE.wk.exercicios[EXE.ci];var p=prs();if(!p[e.exId]||carga>p[e.exId].carga){p[e.exId]={carga:carga,data:today()};savePrs(p);addPts(75);}if(EXE.cs<e.series){EXE.cs++;var rest=e.descanso||cfg().descanso||60;rstTimer(rest);togTimer();}rendExec();};
-window.prevEx=function(){if(!EXE||EXE.ci<=0)return;clearInterval(EXE.tInt);EXE.tRun=false;EXE.ci--;EXE.cs=(EXE.log[EXE.ci]||[]).length+1;EXE.tSec=0;rendExec();};
-window.nextEx=function(){if(!EXE)return;clearInterval(EXE.tInt);EXE.tRun=false;if(EXE.ci>=EXE.wk.exercicios.length-1){endWk();return;}EXE.ci++;EXE.cs=1;EXE.tSec=0;rendExec();};
+window.confSerie=function(){
+  if(!EXE)return;
+  var carga=parseFloat(document.getElementById("xCarga").value)||0;
+  var reps=parseInt(document.getElementById("xReps").value)||0;
+  if(reps===0){alert("Informe as reps realizadas");return;}
+
+  EXE.log[EXE.ci].push({carga:carga,reps:reps});
+
+  var e=EXE.wk.exercicios[EXE.ci];
+  var p=prs();
+  if(!p[e.exId]||carga>p[e.exId].carga){
+    p[e.exId]={carga:carga,data:today()};
+    savePrs(p);
+    addPts(75);
+  }
+
+  var rest=e.descanso||cfg().descanso||60;
+
+  if(EXE.cs<e.series){
+    EXE.cs++;
+  }
+
+  clearInterval(EXE.tInt);
+  EXE.tRun=false;
+  EXE.tSec=rest;
+
+  rendExec();
+
+  setTimeout(function(){
+    window.scrollTo({top:0,behavior:"smooth"});
+    if(M)M.scrollTop=0;
+  },50);
+};
+window.prevEx=function(){
+  if(!EXE||EXE.ci<=0)return;
+  clearInterval(EXE.tInt);
+  EXE.tRun=false;
+  EXE.ci--;
+  EXE.cs=(EXE.log[EXE.ci]||[]).length+1;
+  EXE.tSec=0;
+  rendExec();
+  setTimeout(function(){
+    window.scrollTo({top:0,behavior:"smooth"});
+    if(M)M.scrollTop=0;
+  },50);
+};
+window.nextEx=function(){
+  if(!EXE)return;
+  clearInterval(EXE.tInt);
+  EXE.tRun=false;
+  if(EXE.ci>=EXE.wk.exercicios.length-1){
+    endWk();
+    return;
+  }
+  EXE.ci++;
+  EXE.cs=1;
+  EXE.tSec=0;
+  rendExec();
+  setTimeout(function(){
+    window.scrollTo({top:0,behavior:"smooth"});
+    if(M)M.scrollTop=0;
+  },50);
+};
 
 /* ═══════════ WORKOUTS — SUMMARY ═══════════ */
 function endWk(){if(!EXE)return;clearInterval(EXE.tInt);var dur=Math.round((Date.now()-EXE.t0)/60000);var vol=0,exDone=0;var det=[];Object.keys(EXE.log).forEach(function(idx){var s=EXE.log[idx];if(s.length>0){exDone++;var e=EXE.wk.exercicios[idx];var ex=EX_DB.find(function(x){return x.id===e.exId;});var ev=0;s.forEach(function(r){ev+=r.carga*r.reps;vol+=r.carga*r.reps;});det.push({nome:ex?ex.nome:"?",series:s,volume:ev});}});var pts=100;addPts(pts);var rec={id:Date.now(),workoutId:EXE.wk.id,nome:EXE.wk.nome,data:new Date().toISOString(),duracao:dur,volume:vol,exerciciosFeitos:exDone,exerciciosTotal:EXE.wk.exercicios.length,pontos:pts,detalhes:det};var h=hist();h.push(rec);saveHist(h);var dias=getDiasTreinados();if(dias.indexOf(today())===-1){dias.push(today());saveDiasTreinados(dias);}EXE=null;M.innerHTML='<div style="max-width:600px;margin:0 auto"><div class="card" style="text-align:center;padding:40px 24px"><h2 style="font-size:1.8rem;margin-bottom:20px">'+IC.trophy+' Treino Concluído!</h2><div style="font-size:2.8rem;font-weight:800;color:var(--green)">'+vol.toLocaleString()+'kg</div><div style="color:var(--muted);margin-top:4px">Volume total</div></div><div class="g2" style="margin-top:16px"><div class="card" style="text-align:center"><div style="font-size:1.8rem;font-weight:800">'+IC.clock+' '+dur+'</div><div style="color:var(--muted);font-size:.82rem">minutos</div></div><div class="card" style="text-align:center"><div style="font-size:1.8rem;font-weight:800">'+IC.dumbbell+' '+exDone+'</div><div style="color:var(--muted);font-size:.82rem">exercícios</div></div><div class="card" style="text-align:center"><div style="font-size:1.8rem;font-weight:800;color:var(--green)">+'+pts+'</div><div style="color:var(--muted);font-size:.82rem">pontos</div></div><div class="card" style="text-align:center"><div style="font-size:1.8rem;font-weight:800">'+det.reduce(function(a,d){return a+d.series.length;},0)+'</div><div style="color:var(--muted);font-size:.82rem">séries</div></div></div><div class="card" style="margin-top:16px"><h4 style="margin-bottom:10px">Detalhes</h4>'+det.map(function(d){return '<div style="margin-bottom:10px"><strong style="font-size:.88rem">'+d.nome+'</strong> <span style="color:var(--muted);font-size:.78rem">'+d.volume+'kg</span>'+d.series.map(function(s,i){return '<div class="srow"><span>Série '+(i+1)+'</span><span>'+s.carga+'kg × '+s.reps+'</span></div>';}).join("")+'</div>';}).join("")+'</div><div style="text-align:center;margin-top:20px"><button class="btn btn-g" onclick="pgWork()" style="padding:14px 32px">'+IC.check+' Salvo — Voltar</button></div></div>';}
